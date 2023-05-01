@@ -1590,7 +1590,7 @@ namespace IterativeSMOS {
         for (int j = 0; j < 500 && whetherEnterLoop; j++) {
 		// for (int j = 0; j < 20; j++) {
 			// test part
-            // printf("This is iteration %d\n", j);
+            printf("This is iteration %d\n", j);
 
 
             /// ***********************************************************
