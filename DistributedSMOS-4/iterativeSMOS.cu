@@ -1541,10 +1541,11 @@ namespace IterativeSMOS {
 
 
 
-        /*
+        
         //display information
         printf("numKs: %d, length: %d, numUniqueBuckets: %d, tempKorderLength: %d\n", numKs, length, numUniqueBuckets, tempKorderLength);
         printf("numUniqueBucketsOld: %d\n", numUniqueBucketsOld);
+        /*
         printf("uniqueBuckets:\n");
         for (int i = 0; i < numUniqueBuckets; i++)
             printf("%d, ", uniqueBuckets[i]);

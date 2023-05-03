@@ -81,4 +81,4 @@ mpirun -np 4 -H delamain,harary,wilkinson,taussky ./compareDistributedSMOS
 
 -arch=sm_60
 
-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
+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

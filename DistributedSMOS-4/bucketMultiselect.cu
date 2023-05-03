@@ -852,7 +852,7 @@ namespace BucketMultiselect{
   template <typename T>
   T bucketMultiselectWrapper (T * d_vector, int length, uint * kVals_ori, int numKs
                               , T * outputs, int blocks, int threads) { 
-
+    
     int numBuckets = 8192;
     uint kVals[numKs];
 
@@ -881,7 +881,8 @@ namespace BucketMultiselect{
     */
    
     bucketMultiSelect (d_vector, length, kVals, numKs, outputs, blocks, threads, numBuckets, 17);
-
+        
+        
     return 1;
   }
   

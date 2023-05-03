@@ -316,7 +316,7 @@ int main (int argc, char *argv[]) {
 	uint testCount, type,distributionType,startPower,stopPower,kDistribution,startK
 	,stopK,jumpK;
 
-
+	/*
 	printf("Please enter the type of value you want to test:\n0-float\n1-double\n2-uint\n");
 	scanf("%u", &type);
 	printf("Please enter distribution type: ");
@@ -337,20 +337,21 @@ int main (int argc, char *argv[]) {
 	scanf("%u", &stopK);
 	printf("Please enter number of tests to run per K: ");
 	scanf("%u", &testCount);
+	*/
 
 
-	/*
+	
 	// test part
 	type = 0;
-	distributionType = 5;
-	kDistribution = 0;
-	startPower = 27;
-	stopPower = 27;
-	startK = 850;
-	jumpK = 10;
-	stopK =850;
-	testCount = 4;
-	*/
+	distributionType = 0;
+	kDistribution = 1;
+	startPower = 22;
+	stopPower = 23;
+	startK = 100;
+	jumpK = 50;
+	stopK = 1000;
+	testCount = 5;
+	
 
 	switch(type){
 		case 0:
