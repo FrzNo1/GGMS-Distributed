@@ -80,3 +80,5 @@ mpirun -np 4 -H zermelo,peano,kleene,rosser ./compareDistributedSMOS
 mpirun -np 4 -H delamain,harary,wilkinson,taussky ./compareDistributedSMOS
 
 -arch=sm_60
+
+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
