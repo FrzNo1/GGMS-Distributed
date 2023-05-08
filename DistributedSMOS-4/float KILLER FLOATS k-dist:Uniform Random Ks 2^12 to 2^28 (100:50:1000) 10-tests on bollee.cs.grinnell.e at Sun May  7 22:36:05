@@ -1,0 +1,341 @@
+k-order seed: 198193719281124
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.32944,IterativeSMOS,10.749,DistributedSMOS,239.054,
+ERROR ON TEST 0 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 551853497371050
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.85299e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 0 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 551853497371050
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.23814,IterativeSMOS,6.05635,DistributedSMOS,211.227,
+ERROR ON TEST 1 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1146273037938000
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.84515e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 1 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1146273037938000
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.23059,IterativeSMOS,6.54106,DistributedSMOS,216.767,
+ERROR ON TEST 2 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1529298402505125
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.84337e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 2 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1529298402505125
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.27408,IterativeSMOS,5.86416,DistributedSMOS,221.367,
+ERROR ON TEST 3 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 239944940521376
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.85609e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 3 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 239944940521376
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,2.95114,IterativeSMOS,5.7081,DistributedSMOS,212.744,
+ERROR ON TEST 4 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 640968785306432
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.85131e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 4 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 640968785306432
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.1665,IterativeSMOS,5.71696,DistributedSMOS,206.446,
+ERROR ON TEST 5 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1025745007756112
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.85165e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 5 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1025745007756112
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.14893,IterativeSMOS,6.06346,DistributedSMOS,215.447,
+ERROR ON TEST 6 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1400819121873104
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.84553e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 6 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1400819121873104
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.26518,IterativeSMOS,5.9736,DistributedSMOS,202.87,
+ERROR ON TEST 7 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 108090207508285
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.83405e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 7 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 108090207508285
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.23466,IterativeSMOS,5.77766,DistributedSMOS,216.499,
+ERROR ON TEST 8 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 478300641301516
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.83421e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 8 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 478300641301516
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,100,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.20589,IterativeSMOS,6.47245,DistributedSMOS,202.722,
+ERROR ON TEST 9 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 870166153969898
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 1.85127e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 9 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 870166153969898
+numKs = 100
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.17379,IterativeSMOS,5.69606,DistributedSMOS,213.188,
+ERROR ON TEST 0 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1249422124480550
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.84049e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 0 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1249422124480550
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.29632,IterativeSMOS,6.21766,DistributedSMOS,203.465,
+ERROR ON TEST 1 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1636104088376749
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.81285e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 1 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1636104088376749
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.25299,IterativeSMOS,5.90371,DistributedSMOS,213.603,
+ERROR ON TEST 2 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 324499581026478
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.8331e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 2 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 324499581026478
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.24358,IterativeSMOS,5.96896,DistributedSMOS,212.598,
+ERROR ON TEST 3 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 711804446434224
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.82065e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 3 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 711804446434224
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.15069,IterativeSMOS,5.48461,DistributedSMOS,204.036,
+ERROR ON TEST 4 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1097048687060898
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.82482e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 4 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1097048687060898
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.15082,IterativeSMOS,5.82115,DistributedSMOS,211.828,
+ERROR ON TEST 5 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1467151375987440
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.82859e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 5 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1467151375987440
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.25376,IterativeSMOS,6.31203,DistributedSMOS,215.114,
+ERROR ON TEST 6 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 168382001205622
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.81996e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 6 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 168382001205622
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.14205,IterativeSMOS,6.56643,DistributedSMOS,212.53,
+ERROR ON TEST 7 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 558191940108177
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.82675e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 7 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 558191940108177
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.21421,IterativeSMOS,5.47002,DistributedSMOS,212.586,
+ERROR ON TEST 8 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 945350339768807
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.85528e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 8 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 945350339768807
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2
+4096,150,KILLER FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.24019,IterativeSMOS,6.09597,DistributedSMOS,213.004,
+ERROR ON TEST 9 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 1
+vector size = 4096
+vector seed = 1330399292654750
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 1.82338e-38 correct result = 2.35099e-38
+
+ERROR ON TEST 9 of 10 tests!!!!!
+
+ERROR ON ALGORITHM 2
+vector size = 4096
+vector seed = 1330399292654750
+numKs = 150
+wrong k = 0 kIndex = 80 wrong result = 0 correct result = 2.35099e-38
+2

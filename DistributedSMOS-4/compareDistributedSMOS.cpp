@@ -243,7 +243,7 @@ namespace CompareDistributedSMOS {
 			//cudaDeviceReset();
             gettimeofday(&t1, NULL);
             seed = t1.tv_usec * t1.tv_sec;
-            // seed = 1004272086339771;
+            // seed = 830359020905406;
             
             curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);       // potentially not work
             curandSetPseudoRandomGeneratorSeed(generator, seed);
