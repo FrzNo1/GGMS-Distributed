@@ -18,14 +18,6 @@ int updatekVals_distributive
              unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
              int * numUniqueBuckets, int * numUniqueBucketsOld,
              unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-
-template <typename T>
-int updatekVals
-			(unsigned int * kVals, int * numKs, T * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld);
              
 int updateReindexCounter_distributive
 			(unsigned int* reindexCounter, unsigned int* h_bucketCount, 
@@ -40,7 +32,7 @@ T absolute(T a);
 
 template <typename T>
 void generateSamples_distributive_CALL
-			(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local, int width);
+			(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local);
 					 
 					 
 template <typename T>

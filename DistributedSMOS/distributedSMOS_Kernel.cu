@@ -93,88 +93,6 @@ int findKBuckets(unsigned int * h_bucketCount, int numBuckets,
 
     return 0;
 }
-/*
- * This function updates the correct kth orderstats if the bin only contains one element. While going through the
- * list of orderstats, it updates K since we have reduced the problem size to elements in the kth bucket. In
- * addition, it updates the unique buckets list to avoid the situation where two order share the same buckets.
- *
- * kthBucketScanner:  sum-so-far of the number of elements in the buckets where k values fall into
- * uniqueBuckets:  the list to store all buckets which are active with no repeats
- */
-template <typename T>
-int updatekVals
-	(unsigned int * kVals, int * numKs, T * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld) {
-    int index = 0;
-    int numKsindex = 0;
-    *numUniqueBucketsOld = *numUniqueBuckets;
-    *numUniqueBuckets = 0;
-    *lengthOld = *length;
-
-    // get the index of the first buckets with more than one elements in it
-    // add the number of elements and updates correct kth order
-    uniqueBuckets[0] = markedBuckets[index];
-    uniqueBucketCounts[0] = h_bucketCount[markedBuckets[index]];
-    reindexCounter[0] = 0;
-    *numUniqueBuckets = 1;
-    kVals[0] = kVals[index] - kthBucketScanner[index];
-    kIndicies[0] = kIndicies[index];
-    numKsindex++;
-    index++;
-
-    // go through the markedbuckets list. If there is more than one, updates it to uniqueBucket
-    for ( ; index < *numKs; index++) {
-        // case if the there is more than one element in the bucket and the bucket is not repeat with last one
-        if (markedBuckets[index] != uniqueBuckets[(*numUniqueBuckets) - 1]) {
-            uniqueBuckets[*numUniqueBuckets] = markedBuckets[index];
-            uniqueBucketCounts[*numUniqueBuckets] = h_bucketCount[markedBuckets[index]];
-            reindexCounter[*numUniqueBuckets] = reindexCounter[(*numUniqueBuckets) - 1]
-                                                + uniqueBucketCounts[(*numUniqueBuckets) - 1];
-            (*numUniqueBuckets)++;
-        }
-
-        // update korder
-        kVals[numKsindex] = reindexCounter[(*numUniqueBuckets) - 1] + kVals[index] - kthBucketScanner[index];
-        kIndicies[numKsindex] = kIndicies[index];
-        numKsindex++;
-    }
-
-    // update numKs and length of vector
-    *numKs = numKsindex;
-    if (*numKs > 0)
-        *length = reindexCounter[(*numUniqueBuckets) - 1] + uniqueBucketCounts[(*numUniqueBuckets) - 1];
-
-
-    return 0;
-}
-template int updatekVals
-			(unsigned int * kVals, int * numKs, int * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld);
-template int updatekVals
-			(unsigned int * kVals, int * numKs, unsigned int * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld);
-template int updatekVals
-			(unsigned int * kVals, int * numKs, float * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld);
-template int updatekVals
-			(unsigned int * kVals, int * numKs, double * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld);
-             
 
 /*
  * This function updates the correct kth orderstats if the bin only contains one element. While going through the
@@ -261,7 +179,6 @@ int updatekVals_distributive
 
     return 0;
 }
-
 
 template int updatekVals_distributive
 			(unsigned int * kVals, int * numKs, int * output, unsigned int * kIndicies,
@@ -357,16 +274,13 @@ template double absolute(double a);
  */
 template <typename T>
 __global__ void generateSamples_distributive
-					(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local, int offset) {
+					(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local) {
 	
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
-	int width = length_local / sampleSize_local;
+	int offset = length_local / sampleSize_local;
 	
-	if (index < sampleSize_local) {
-		for (int i = index; i < sampleSize_local; i += offset) {
-			d_sampleVector[i] = d_vector[i * width];
-		}
-	}
+	if (index < sampleSize_local)
+		d_sampleVector[index] = d_vector[index * offset];		
 }
 
 /*
@@ -802,23 +716,22 @@ __global__ void updateOutput_distributive
 /// ***********************************************************
 template <typename T>
 void generateSamples_distributive_CALL
-			(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local, int offset) {
-	 generateSamples_distributive
-	 	<<<sampleSize_local / MAX_THREADS_PER_BLOCK, MAX_THREADS_PER_BLOCK>>> 
-	 		(d_vector, d_sampleVector, length_local, sampleSize_local, offset);		
+			(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local) {
+	 generateSamples_distributive<<<8, 1024>>> 
+	 		(d_vector, d_sampleVector, length_local, sampleSize_local);		
 			}
 template void generateSamples_distributive_CALL
 			(int* d_vector, int* d_sampleVector, 
-			 int length_local, int sampleSize_local, int offset);
+			 int length_local, int sampleSize_local);
 template void generateSamples_distributive_CALL
 			(unsigned int* d_vector, unsigned int* d_sampleVector, 
-			 int length_local, int sampleSize_local, int offset);
+			 int length_local, int sampleSize_local);
 template void generateSamples_distributive_CALL
 			(float* d_vector, float* d_sampleVector, 
-			 int length_local, int sampleSize_local, int offset);
+			 int length_local, int sampleSize_local);
 template void generateSamples_distributive_CALL
 			(double* d_vector, double* d_sampleVector, 
-			 int length_local, int sampleSize_local, int offset);
+			 int length_local, int sampleSize_local);
 
 
 template <typename T>

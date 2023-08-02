@@ -48,8 +48,11 @@
 	11: host send tempKorderIndeces to each slot in distributedSMOS, STEP 4.3
 	12: host send numKs to each slot in distributedSMOS, STEP 4.3
 	13: each slot send tempOutput to host in distributedSMOS, STEP 4.3
+	14: each slot send sampleVector to host in distributedSMOS, STEP 2.1
 	
 	30: each slot send length_local to host in distributedSMOS, STEP 1.1
+	31: host send maximum_host to each slot in distributedSMOS, STEP 1.1
+	32: host send minimum_host to each slot in distributedSMOS, STEP 1.1
 	
 	50: host send numUniqueBuckets to each slot in distributedSMOS, STEP 5.1.1
 	51: host send uniqueBuckets to each slot in distributedSMOS, STEP 5.1.1
@@ -77,8 +80,6 @@
 /// **** MPI Function Libraries
 /// ***********************************************************
 /// ***********************************************************
-
-// TODO potential need to include this in header file
 
 template <typename T>
 void MPI_Send_CALL(T *buf, int count, 
@@ -154,10 +155,7 @@ namespace DistributedSMOS {
 	T distributedSMOS (T* d_vector_local, int length_local,int length_total, unsigned int * kVals, 
 					   int numKs, T* output, int blocks, int threads, int numBuckets, int numPivots, 
 					   int rank) {
-/*
-    template <typename T>
-	T distributedSMOS (T* d_vector_local, int length_local, int rank) {
-*/
+
 		/// ***********************************************************
 		/// **** STEP 1: Initialization
 		/// **** STEP 1.1: Find Min and Max of the whole vector
@@ -203,21 +201,32 @@ namespace DistributedSMOS {
 					minimum_host = minimum_each_receive;
 				}
 			}
-
-			/*
-			// test part
-			printf("max: %d, min: %d\n", maximum_host, minimum_host);
-			*/
-
 			
-
+			for (int i = 1; i < RANK_NUM; i++) {
+				MPI_Send_CALL(&maximum_host, 1, i, 31, MPI_COMM_WORLD);
+				MPI_Send_CALL(&minimum_host, 1, i, 32, MPI_COMM_WORLD);
+			}
+		}
+		
+		if (rank != 0) {
+			MPI_Recv_CALL(&maximum_host, 1, 0, 31, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			MPI_Recv_CALL(&minimum_host, 1, 0, 32, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		}
+		
+		MPI_Barrier(MPI_COMM_WORLD);
+			
+		if (rank == 0) {
 			//if the max and the min are the same, then we are done
 			if (maximum_host == minimum_host) {
 				for (int i = 0; i < numKs; i++)
 					output[i] = minimum_host;
-				
-				return 1;
 			}
+		}
+		
+		MPI_Barrier(MPI_COMM_WORLD);
+		
+		if (maximum_host == minimum_host) {
+			return 1;
 		}
 
 
@@ -235,9 +244,11 @@ namespace DistributedSMOS {
 
 
 		// variables for the randomized selection
-		int sampleSize_host = 1024;
+		int sampleSize_host = 8192;
 		int sampleSize_local = sampleSize_host / RANK_NUM;
-		
+		T* sampleVector = (T*)malloc(sampleSize_local * sizeof(T));
+		T* d_sampleVector;
+		cudaMalloc(&d_sampleVector, sampleSize_local * sizeof(T));
 		
 		// pivots variables
 		// potential to simplify
@@ -320,7 +331,7 @@ namespace DistributedSMOS {
 		cudaMalloc(&d_uniqueBucketCounts, numSpaceAllocate * sizeof(unsigned int));
 		cudaMalloc(&d_reindexCounter, numSpaceAllocate * sizeof(unsigned int));
 		cudaMalloc(&d_kthnumBuckets, numSpaceAllocate * sizeof(unsigned int));
-		cudaMalloc(&d_tempOutput, numSpaceAllocate * sizeof(unsigned int));
+		cudaMalloc(&d_tempOutput, numSpaceAllocate * sizeof(T));
         cudaMalloc(&d_tempKorderBucket, numSpaceAllocate * sizeof(unsigned int));
         cudaMalloc(&d_tempKorderIndeces, numSpaceAllocate * sizeof(unsigned int));
 
@@ -333,11 +344,15 @@ namespace DistributedSMOS {
 		unsigned int * h_bucketCount_Host = NULL;
 		unsigned int * h_bucketCount_Receive = NULL;
 		T * tempOutput_Receive = NULL;
+		T * sampleVector_Host = NULL;
+		T * d_sampleVector_Host = NULL;
 		
 		if (rank == 0) {
 			h_bucketCount_Host = (unsigned int *)malloc(numBuckets * sizeof(unsigned int));
 			h_bucketCount_Receive = (unsigned int *)malloc(numBuckets * sizeof(unsigned int));
 			tempOutput_Receive = (T *)malloc(numSpaceAllocate * sizeof(T));
+			sampleVector_Host = (T *)malloc(sampleSize_host * sizeof(T));
+			cudaMalloc(&d_sampleVector_Host, sampleSize_host * sizeof(T));
 		}
 
 		cudaDeviceSynchronize();
@@ -367,20 +382,7 @@ namespace DistributedSMOS {
 		
 		cudaDeviceSynchronize();
 		MPI_Barrier(MPI_COMM_WORLD);
-		
-		/*
-		// test part
-		if (rank == 0) {
-			printf("rank 0, finishing STEP 1\n");
-		}
-		if (rank == 2) {
-			printf("rank 2, finishing STEP 1\n");
-		}
-		*/
-		
-		
-		
-		
+			
 		
 		/// ***********************************************************
         /// **** STEP 2: CreateBuckets
@@ -389,8 +391,42 @@ namespace DistributedSMOS {
         /// ***********************************************************
         
         
-        // TODO 
-        // not randomly select numbers from the all ranks
+        // randomly select numbers from the all ranks
+        if (true) {
+		    generateSamples_distributive_CALL
+				(d_vector_local, d_sampleVector, length_local, sampleSize_local);
+				
+			cudaMemcpy(sampleVector, d_sampleVector, sampleSize_local * sizeof(T), 
+					   cudaMemcpyDeviceToHost);
+					   
+			cudaDeviceSynchronize();
+			MPI_Barrier(MPI_COMM_WORLD);
+	    
+		    if (rank != 0) {
+				MPI_Send_CALL(sampleVector, sampleSize_local, 0, 14, MPI_COMM_WORLD);
+			}
+		}
+		
+		if (rank == 0) {
+			for (int i = 0; i < sampleSize_local; i++) {
+				sampleVector_Host[i] = sampleVector[i];
+			}
+			
+			for (int i = 1; i < RANK_NUM; i++) {
+				MPI_Recv_CALL(sampleVector, sampleSize_local, i, 14, MPI_COMM_WORLD, 
+					     MPI_STATUS_IGNORE);
+					     
+				for (int j = 0; j < sampleSize_local; j++) {
+					sampleVector_Host[i * sampleSize_local + j] = sampleVector[j];
+				}
+			}
+			
+			cudaMemcpy(d_sampleVector_Host, sampleVector_Host, sampleSize_host * sizeof(T), 
+					   cudaMemcpyHostToDevice);
+		}
+		
+		cudaDeviceSynchronize();
+		MPI_Barrier(MPI_COMM_WORLD);
 
 
         
@@ -402,7 +438,7 @@ namespace DistributedSMOS {
         
         // Find bucket sizes using a randomized selection
         if (rank == 0) {
-		    generatePivots<T>(pivots, slopes, d_vector_local, length_local, numPivots, 
+		    generatePivots<T>(pivots, slopes, d_sampleVector_Host, sampleSize_host, numPivots, 
 		    			   sampleSize_host, numBuckets, minimum_host, maximum_host);
 		    			   
 		    // make any slopes that were infinity due to division by zero (due to no
@@ -422,6 +458,7 @@ namespace DistributedSMOS {
 		        // printf("%d, %d\n", pivotsLeft[i], pivotsRight[i]);
 		    }
 		    numUniqueBuckets = numPivots - 1;
+		    	     
 		    
 		    // send pivots and kthnumBuckets to all other ranks
 		    for (int i = 1; i < RANK_NUM; i++) {
@@ -475,28 +512,7 @@ namespace DistributedSMOS {
 		
 		cudaDeviceSynchronize();
 		MPI_Barrier(MPI_COMM_WORLD);
-		
-		/*
-		// test part
-		if (rank == 0) {
-			printf("rank 0, finishing STEP 2\n");
-		}
-		if (rank == 2) {
-			printf("rank 2, finishing STEP 2\n");
-		}
-		*/
-		
-		
-/*
-		// test part
-		if (rank == 2) {
-			for (int i = 0; i < numUniqueBuckets; i++) {
-				printf("%d\n", pivotsLeft[i]);
-			}
-		}
-*/
-
-		
+			
 		
         /// ***********************************************************
         /// **** STEP 3: AssignBuckets
@@ -509,37 +525,11 @@ namespace DistributedSMOS {
 					 d_pivotsLeft,  d_pivotsRight, d_kthnumBuckets, d_bucketCount, 
 					 numUniqueBuckets, numBuckets, offset, numBlocks, threadsPerBlock);
         }
-        
-        
-        									
+               									
         cudaDeviceSynchronize();
 		MPI_Barrier(MPI_COMM_WORLD);
 		
-		/*
-		// test part
-		if (rank == 0) {
-			printf("rank 0, finishing STEP 3\n");
-		}
-		if (rank == 2) {
-			printf("rank 2, finishing STEP 3\n");
-		}
-		*/
 		
-		
-/*
-		// test part
-		if (rank == 0) {
-			unsigned int * elementToBucket_test = (unsigned int*)malloc(sizeof(unsigned int) * length_local);
-			cudaMemcpy(elementToBucket_test, d_elementToBucket, length_local * sizeof(unsigned int), cudaMemcpyDeviceToHost);
-			printf("Step 3, elementToBucket:\n");
-			for (int i = 0; i < length_local; i++) {
-				printf("%d ", elementToBucket_test[i]);
-			}
-			printf("\n");
-		}
-*/
-
-
 		/// ***********************************************************
         /// **** STEP 4: IdentifyActiveBuckets
         /// **** STEP 4.1 Update the bucketCount
@@ -584,16 +574,6 @@ namespace DistributedSMOS {
         cudaDeviceSynchronize();
 		MPI_Barrier(MPI_COMM_WORLD);
 		
-/*
-		// test part
-		if (rank == 0) {
-			printf("Step 4.1, h_bucketCount:\n");
-			for (int i = 0; i < numBuckets; i++) {
-				printf("%d ", h_bucketCount[i]);
-			}
-			printf("\n");
-		}
-*/
 
 		/// ***********************************************************
         /// **** STEP 4: IdentifyActiveBuckets
@@ -681,6 +661,9 @@ namespace DistributedSMOS {
 		    	if (rank != 0) {
 		    		MPI_Send_CALL(tempOutput, tempKorderLength, 0, 13, MPI_COMM_WORLD);
 		    	}
+		    	
+		    	MPI_Barrier(MPI_COMM_WORLD);
+				cudaDeviceSynchronize();
         	}
         }
         
@@ -714,26 +697,8 @@ namespace DistributedSMOS {
 		bool whetherEnterLoop = true;
 		if (numKs <= 0)
 			whetherEnterLoop = false;
-			
-		/*
-		// test part
-		if (rank == 2) {
-			printf("numKs: %d\n", numKs);
-		}
-		*/
 		
-		/*
-		// test part
-		if (rank == 0) {
-			printf("rank 0, finishing STEP 4\n");
-		}
-		if (rank == 2) {
-			printf("rank 2, finishing STEP 4\n");
-		}
-		*/
-		
-		
-			
+		int numLengthEqual = 0;
 		
 		/// ***********************************************************
         /// **** STEP 5: Reduce
@@ -741,7 +706,7 @@ namespace DistributedSMOS {
         /// **** order statistics and reduce the vector size
         /// ***********************************************************
         
-        for (int l = 0; l < 20 && whetherEnterLoop; l++) {
+        for (int l = 0; l < 40 && whetherEnterLoop; l++) {
         
         	/// ***********************************************************
             /// **** STEP 5: Reduce
@@ -806,31 +771,6 @@ namespace DistributedSMOS {
         
         	cudaDeviceSynchronize();
 			MPI_Barrier(MPI_COMM_WORLD);
-			
-			/*
-			// test part
-			for (int j = 0; j < RANK_NUM; j++) {
-				if (rank == j) {
-					T* vector_local = (T*)malloc(length_local * sizeof(T));
-					cudaMemcpy(vector_local, d_vector_local, length_local * sizeof(T), 
-							   cudaMemcpyDeviceToHost);
-					
-					printf("iteration %d, rank %d d_vector_local:\n", l, j);
-					for (int i = 0; i < length_local; i++) {
-						printf("%d ", vector_local[i]);
-					}
-					printf("\n");
-					
-				}
-			}
-			*/
-			
-			cudaDeviceSynchronize();
-			MPI_Barrier(MPI_COMM_WORLD);
-			
-        
-        
-        
 
             /// ***********************************************************
             /// **** STEP 5: Reduce
@@ -958,9 +898,7 @@ namespace DistributedSMOS {
 			cudaDeviceSynchronize();
 			MPI_Barrier(MPI_COMM_WORLD);
 			
-			
-			
-			
+									
 			/// ***********************************************************
             /// **** STEP 5: Reduce
             /// **** Step 5.5: IdentifyActiveBuckets
@@ -1092,15 +1030,6 @@ namespace DistributedSMOS {
 					
 					cudaMemcpy(tempOutput, d_tempOutput, tempKorderLength * sizeof(T), 
 							   cudaMemcpyDeviceToHost);
-					
-					/*		   
-					// test part
-		    		printf("rank %d, iteration %d, tempOutput:\n", rank, l);
-		    		for (int i = 0; i < tempKorderLength; i++) {
-		    			printf("%d ", tempOutput[i]);
-		    		}
-		    		printf("\n");
-		    		*/
 							   
 					cudaDeviceSynchronize();
 							   
@@ -1136,32 +1065,19 @@ namespace DistributedSMOS {
 		    cudaDeviceSynchronize();
 			MPI_Barrier(MPI_COMM_WORLD);
 			
-			/*
-			// test part
-			if (rank == 0) {
-				printf("rank 0, length_host: %d, length_host_Old: %d\n", length_host, length_host_Old);
+			
+			if (length_host == length_host_Old) {
+				numLengthEqual++;
+				if (numLengthEqual > 2 || length_host == 0 || numKs == 0) {
+					break;
+				}
 			}
-			if (rank == 2) {
-				printf("rank 2, length_host: %d, length_host_Old: %d\n", length_host, length_host_Old);
-			}
-			*/
+			else {
+            	numLengthEqual = 0;
+            }
 			
 			
-			if (length_host == length_host_Old)
-				break;
-			
 		}
-		
-		/*
-		// test part
-		if (rank == 0) {
-			printf("rank 0, finishing STEP 5\n");
-		}
-		if (rank == 2) {
-			printf("rank 2, finishing STEP 5\n");
-		}
-		*/
-		
 		
 		
 		/// ***********************************************************
@@ -1169,17 +1085,9 @@ namespace DistributedSMOS {
         /// **** Update repeated k-order statistics to output and 
         /// **** free all the memory
         /// ***********************************************************
-        
-        /*
-        // test part
-        if (rank == 0) {
-        	printf("from rank 0, tempKorderIndices:\n");
-        	for (int i = 0; i < numKs; i++) {
-        		printf("%d ", tempKorderIndeces[i]);
-        	}
-        	printf("\n");
-        }
-        */
+		
+		cudaDeviceSynchronize();
+		MPI_Barrier(MPI_COMM_WORLD);
 		
 		
 		// deal with the repeated cases
@@ -1209,7 +1117,9 @@ namespace DistributedSMOS {
 			cudaMemcpy(tempOutput, d_tempOutput, numKs * sizeof(T), 
 					   cudaMemcpyDeviceToHost);
 					   
-			cudaDeviceSynchronize();
+			MPI_Barrier(MPI_COMM_WORLD);
+			cudaDeviceSynchronize();					  
+					   
 			
 			// each slots send output being already found to the host
 			if (rank != 0) {
@@ -1236,6 +1146,10 @@ namespace DistributedSMOS {
 		    }
 		}
 		
+		MPI_Barrier(MPI_COMM_WORLD);
+		cudaDeviceSynchronize();
+		
+		
 		
 		
 		// free all the memory
@@ -1254,6 +1168,7 @@ namespace DistributedSMOS {
         free(tempOutput);
         free(tempKorderBucket);
         free(tempKorderIndeces);
+        free(sampleVector);
 
 
         cudaFree(d_slopes);
@@ -1275,12 +1190,18 @@ namespace DistributedSMOS {
         cudaFree(d_tempOutput);
         cudaFree(d_tempKorderBucket);
         cudaFree(d_tempKorderIndeces);
+        cudaFree(d_sampleVector);
         
         if (rank == 0) {
         	free(h_bucketCount_Host);
         	free(h_bucketCount_Receive);
         	free(tempOutput_Receive);
+        	free(sampleVector_Host);
+        	cudaFree(d_sampleVector_Host);
         }
+        
+        MPI_Barrier(MPI_COMM_WORLD);
+		cudaDeviceSynchronize();
 	
 		return 0;
 	}
@@ -1350,12 +1271,17 @@ namespace DistributedSMOS {
 		}
 
 		MPI_Barrier(MPI_COMM_WORLD);
+		cudaDeviceSynchronize();
 
 		distributedSMOS(d_vector_local, length_local, length_total, kVals, numKs, output, blocks, threads, numBuckets, 17, rank);
 
 		MPI_Barrier(MPI_COMM_WORLD);
+		cudaDeviceSynchronize();
 
 		free(kVals);
+		
+		MPI_Barrier(MPI_COMM_WORLD);
+		cudaDeviceSynchronize();
 
 		return 1;
 	}
@@ -1374,138 +1300,3 @@ namespace DistributedSMOS {
              double* output, int blocks, int threads, int rank);
 	
 }
-
-
-
-/*
-
-
-/// ***********************************************************
-/// ***********************************************************
-/// **** distributedSMOS: the main function
-/// ***********************************************************
-/// ***********************************************************
-
-int main(int argc, char *argv[]) {
-	int rank, size;
-	MPI_Init(&argc, &argv);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-
-	/// ***************************************************************
-	/// **** Create Problems
-	/// **** Create the vector and distribute them to different slots
-	/// ***************************************************************
-
-	int vector_size_per_slot = PROBLEM_SIZE / RANK_NUM;
-	int* h_vector_total_host;
-	int* h_vector_each_send;
-
-	int length_local = PROBLEM_SIZE / RANK_NUM;
-	int* h_vector_local = (int*)malloc(sizeof(int) * vector_size_per_slot);
-	int* d_vector_local = NULL;
-
-
-	int numKs = NUM_K_SIZE;
-	unsigned int* kVals = (unsigned int*)malloc(numKs * sizeof(unsigned int));
-
-	int* output = (int*)malloc(numKs * sizeof(int));
-
-	int threadsPerBlock = 1024;
-	int numBlocks = 12;
-	int numBuckets = 8192;
-
-	
-
-	if (rank == 0) {
-		h_vector_total_host = (int*)malloc(sizeof(int) * PROBLEM_SIZE);
-		h_vector_each_send = (int*)malloc(sizeof(int) * vector_size_per_slot);
-		
-		time_t t;
-		srand((unsigned) time(&t));
-
-		// assign and send the subarray to each slot
-		for (int i = 0; i < PROBLEM_SIZE; i++) {
-			h_vector_total_host[i] = 1 + i;
-		}
-
-		for (int i = 1; i < RANK_NUM; i++) {
-			for (int j = 0; j < vector_size_per_slot; j++) {
-				h_vector_each_send[j] = h_vector_total_host[j + i * vector_size_per_slot];
-			}
-			MPI_Send_CALL(h_vector_each_send, vector_size_per_slot,
-				i, 0, MPI_COMM_WORLD);
-		}
-
-			// assign vector to itself
-			for (int i = 0; i < vector_size_per_slot; i++) {
-				h_vector_local[i] = h_vector_total_host[i];
-			}
-	}
-
-
-
-    	MPI_Barrier(MPI_COMM_WORLD);
-    
-	if (true) {
-		cudaMalloc((void**)&d_vector_local, sizeof(int) * length_local);
-
-		cudaDeviceSynchronize();
-
-		if (rank != 0) {
-		    MPI_Recv(h_vector_local, length_local, MPI_INT, 0, 0, MPI_COMM_WORLD,
-			     MPI_STATUS_IGNORE);
-		}
-
-		cudaMemcpy(d_vector_local, h_vector_local, sizeof(int) * length_local,
-			   cudaMemcpyHostToDevice);
-			   
-		cudaDeviceSynchronize();
-
-
-		for (int i = 0; i < numKs; i++) {
-			kVals[i] = i * 10 + 1;
-			output[i] = 0;
-		}
-
-    }
-
-    MPI_Barrier(MPI_COMM_WORLD);
-
-    
-    
-	DistributedSMOS::distributedSMOS
-		(d_vector_local, length_local, kVals, numKs, output, 
-		 numBlocks, threadsPerBlock, numBuckets, 17, rank);
-
-
-	MPI_Barrier(MPI_COMM_WORLD);
-	
-	
-	// test part
-	if (rank == 0) {
-		for (int i = 0; i < numKs; i++) {
-			printf("%d: %d  ", kVals[i], output[i]);
-		}
-		printf("\n");
-	}
-
-	free(h_vector_local);
-	free(kVals);
-	free(output);
-	
-	cudaFree(d_vector_local);
-	
-	if (rank == 0) {
-		free(h_vector_total_host);
-		free(h_vector_each_send);
-	}
-	
-	
-	MPI_Finalize();
-
-	return 0;
-}
-*/
-

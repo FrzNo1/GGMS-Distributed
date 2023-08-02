@@ -62,7 +62,7 @@ ssh mccarthy
 to see if you can connect to them successfully or not.
 
 
-Then cd to folder DistributedSMOS-1
+Then cd to folder DistributedSMOS
 
 
 To compare Iterative and Sorting version of SMOS, firstly using one of the four
@@ -123,4 +123,4 @@ To compare Distributed and Iterative version of SMOS, type
 mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./compareDistributedSMOS
 
 
-Github Token: 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
+Github Token: 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

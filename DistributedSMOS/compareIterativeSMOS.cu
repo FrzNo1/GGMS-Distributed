@@ -338,20 +338,6 @@ int main (int argc, char *argv[]) {
 	printf("Please enter number of tests to run per K: ");
 	scanf("%u", &testCount);
 
-
-	/*
-	// test part
-	type = 0;
-	distributionType = 5;
-	kDistribution = 0;
-	startPower = 27;
-	stopPower = 27;
-	startK = 850;
-	jumpK = 10;
-	stopK =850;
-	testCount = 4;
-	*/
-
 	switch(type){
 		case 0:
 			typeString = "float";
