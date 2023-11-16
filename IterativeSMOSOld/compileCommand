@@ -1,3 +1,0 @@
-nvcc -o compareIterativeSMOS compareIterativeSMOS.cu  -I./lib/ -I. -arch=sm_60 -lcurand -lm
-
-token: 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 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
