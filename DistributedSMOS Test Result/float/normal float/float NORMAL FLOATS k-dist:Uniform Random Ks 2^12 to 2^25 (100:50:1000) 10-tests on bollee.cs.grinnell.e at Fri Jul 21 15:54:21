@@ -1,4 +1,3 @@
-k-order seed: 645148835385876
 4096,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.22762,IterativeSMOS,3.62278,DistributedSMOS,61.5436,0
 4096,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.0904,IterativeSMOS,3.71027,DistributedSMOS,29.762,0
 4096,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.17494,IterativeSMOS,3.59581,DistributedSMOS,29.0345,0
@@ -189,7 +188,6 @@ k-order seed: 645148835385876
 4096,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.23914,IterativeSMOS,4.33645,DistributedSMOS,32.8497,0
 4096,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.23082,IterativeSMOS,4.43181,DistributedSMOS,41.3138,0
 4096,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3.24746,IterativeSMOS,4.35456,DistributedSMOS,42.054,0
-k-order seed: 832712170421719
 8192,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,4.71955,IterativeSMOS,5.08579,DistributedSMOS,30.1206,0
 8192,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,4.684,IterativeSMOS,5.22576,DistributedSMOS,29.9766,0
 8192,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,4.8329,IterativeSMOS,5.03965,DistributedSMOS,29.7612,0
@@ -380,7 +378,6 @@ k-order seed: 832712170421719
 8192,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,4.50595,IterativeSMOS,5.67034,DistributedSMOS,42.0489,0
 8192,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,4.68701,IterativeSMOS,5.72438,DistributedSMOS,51.8005,0
 8192,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,4.71475,IterativeSMOS,5.852,DistributedSMOS,51.8108,0
-k-order seed: 669121109342528
 16384,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,7.30115,IterativeSMOS,8.01686,DistributedSMOS,29.2241,0
 16384,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,7.54192,IterativeSMOS,7.72586,DistributedSMOS,29.1849,0
 16384,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,7.55965,IterativeSMOS,7.90528,DistributedSMOS,29.435,0
@@ -571,7 +568,6 @@ k-order seed: 669121109342528
 16384,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,7.5089,IterativeSMOS,8.73571,DistributedSMOS,43.5419,0
 16384,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,7.54218,IterativeSMOS,8.64701,DistributedSMOS,43.1315,0
 16384,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,7.55411,IterativeSMOS,8.77187,DistributedSMOS,52.0064,0
-k-order seed: 69985158190332
 32768,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,26.7708,IterativeSMOS,27.1996,DistributedSMOS,29.6937,0
 32768,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,26.4585,IterativeSMOS,27.0258,DistributedSMOS,29.3025,0
 32768,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,26.9219,IterativeSMOS,26.9968,DistributedSMOS,29.737,0
@@ -762,7 +758,6 @@ k-order seed: 69985158190332
 32768,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,26.7225,IterativeSMOS,28.1799,DistributedSMOS,63.1321,0
 32768,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,26.4629,IterativeSMOS,28.2554,DistributedSMOS,54.1078,0
 32768,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,26.5068,IterativeSMOS,28.435,DistributedSMOS,62.5868,0
-k-order seed: 1273553460964014
 65536,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,51.0277,IterativeSMOS,51.18,DistributedSMOS,29.3905,0
 65536,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,50.6807,IterativeSMOS,51.4437,DistributedSMOS,29.4584,0
 65536,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,50.8644,IterativeSMOS,51.1452,DistributedSMOS,30.2243,0
@@ -953,7 +948,6 @@ k-order seed: 1273553460964014
 65536,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,50.6682,IterativeSMOS,52.2637,DistributedSMOS,63.2559,0
 65536,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,50.5816,IterativeSMOS,52.6046,DistributedSMOS,63.643,0
 65536,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,50.9526,IterativeSMOS,52.3133,DistributedSMOS,63.7355,0
-k-order seed: 1290319706081430
 131072,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,99.1054,IterativeSMOS,99.166,DistributedSMOS,38.7158,0
 131072,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,98.6497,IterativeSMOS,99.035,DistributedSMOS,29.6912,0
 131072,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,98.764,IterativeSMOS,99.4419,DistributedSMOS,39.2601,0
@@ -1144,7 +1138,6 @@ k-order seed: 1290319706081430
 131072,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,98.5195,IterativeSMOS,100.474,DistributedSMOS,64.3021,0
 131072,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,98.8427,IterativeSMOS,100.63,DistributedSMOS,64.3703,0
 131072,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,98.5399,IterativeSMOS,100.428,DistributedSMOS,63.6545,0
-k-order seed: 955718607665276
 262144,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,195.342,IterativeSMOS,196.405,DistributedSMOS,39.3376,0
 262144,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,194.556,IterativeSMOS,195.494,DistributedSMOS,38.9462,0
 262144,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,194.636,IterativeSMOS,195.5,DistributedSMOS,38.849,0
@@ -1335,7 +1328,6 @@ k-order seed: 955718607665276
 262144,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,194.614,IterativeSMOS,196.65,DistributedSMOS,65.6788,0
 262144,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,194.764,IterativeSMOS,196.708,DistributedSMOS,65.5162,0
 262144,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,194.653,IterativeSMOS,196.741,DistributedSMOS,66.0488,0
-k-order seed: 818219065584939
 524288,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,388.26,IterativeSMOS,388.332,DistributedSMOS,48.1132,0
 524288,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,386.675,IterativeSMOS,387.373,DistributedSMOS,48.5513,0
 524288,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,386.917,IterativeSMOS,387.621,DistributedSMOS,39.2895,0
@@ -1526,7 +1518,6 @@ k-order seed: 818219065584939
 524288,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,386.953,IterativeSMOS,389.444,DistributedSMOS,75.2967,0
 524288,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,386.67,IterativeSMOS,389.37,DistributedSMOS,76.6098,0
 524288,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,387.245,IterativeSMOS,389.452,DistributedSMOS,75.4038,0
-k-order seed: 428928733174080
 1048576,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,772.079,IterativeSMOS,773.376,DistributedSMOS,49.3221,0
 1048576,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,771.049,IterativeSMOS,771.99,DistributedSMOS,48.9333,0
 1048576,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,771.193,IterativeSMOS,772.417,DistributedSMOS,49.7211,0
@@ -1717,7 +1708,6 @@ k-order seed: 428928733174080
 1048576,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,771.436,IterativeSMOS,775.945,DistributedSMOS,77.1551,0
 1048576,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,771.504,IterativeSMOS,775.08,DistributedSMOS,77.648,0
 1048576,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,771.199,IterativeSMOS,775.743,DistributedSMOS,77.0586,0
-k-order seed: 822521965360576
 2097152,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,1542.65,IterativeSMOS,1542.25,DistributedSMOS,50.2435,0
 2097152,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,1542.61,IterativeSMOS,1543.49,DistributedSMOS,49.9293,0
 2097152,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,1542.77,IterativeSMOS,1543.39,DistributedSMOS,49.9558,0
@@ -1908,7 +1898,6 @@ k-order seed: 822521965360576
 2097152,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,1543.9,IterativeSMOS,1551.65,DistributedSMOS,79.9863,0
 2097152,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,1542.4,IterativeSMOS,1551.99,DistributedSMOS,79.3345,0
 2097152,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,1542.81,IterativeSMOS,1551.94,DistributedSMOS,80.5273,0
-k-order seed: 1279614642797780
 4194304,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3083.14,IterativeSMOS,3082.64,DistributedSMOS,52.2319,0
 4194304,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3082.9,IterativeSMOS,3084.47,DistributedSMOS,51.534,0
 4194304,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3084.61,IterativeSMOS,3083.13,DistributedSMOS,52.3659,0
@@ -2099,7 +2088,6 @@ k-order seed: 1279614642797780
 4194304,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3083.71,IterativeSMOS,3088.75,DistributedSMOS,83.4084,0
 4194304,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3082.43,IterativeSMOS,3106.91,DistributedSMOS,83.8517,0
 4194304,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,3083.35,IterativeSMOS,3105,DistributedSMOS,82.1808,0
-k-order seed: 257346068479192
 8388608,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,6161.33,IterativeSMOS,6161.56,DistributedSMOS,55.9152,0
 8388608,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,6161.46,IterativeSMOS,6161.86,DistributedSMOS,54.6965,0
 8388608,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,6157.08,IterativeSMOS,6158.61,DistributedSMOS,54.8505,0
@@ -2290,7 +2278,6 @@ k-order seed: 257346068479192
 8388608,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,6157.96,IterativeSMOS,6165.58,DistributedSMOS,103.497,0
 8388608,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,6158.14,IterativeSMOS,6167.12,DistributedSMOS,94.6677,0
 8388608,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,6163.47,IterativeSMOS,6167.69,DistributedSMOS,103.516,0
-k-order seed: 40632134586433
 16777216,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,12318.2,IterativeSMOS,12309.7,DistributedSMOS,62.9745,0
 16777216,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,12309,IterativeSMOS,12318.7,DistributedSMOS,63.0596,0
 16777216,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,12313.4,IterativeSMOS,12310.6,DistributedSMOS,63.4276,0
@@ -2481,7 +2468,6 @@ k-order seed: 40632134586433
 16777216,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,12316.4,IterativeSMOS,12325.4,DistributedSMOS,109.183,0
 16777216,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,12319.2,IterativeSMOS,12327.2,DistributedSMOS,108.478,0
 16777216,1000,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,12312.8,IterativeSMOS,12334.1,DistributedSMOS,111.151,0
-k-order seed: 1070397701682588
 33554432,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,24622.2,IterativeSMOS,24626.9,DistributedSMOS,77.6331,0
 33554432,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,24640.2,IterativeSMOS,24612.5,DistributedSMOS,76.7157,0
 33554432,100,NORMAL FLOATS,Uniform Random Ks,Sort and Choose Multiselect,24644.7,IterativeSMOS,24616,DistributedSMOS,77.7834,0
