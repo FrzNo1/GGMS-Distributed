@@ -55,10 +55,10 @@ distributedSMOSTimingFunctions_Kernel.cu
 
 To begin with, make sure you can remote connect to following computers using 
 ssh without entering password. You can try typing the command
-ssh bollee
-ssh bellman
-ssh householder
-ssh mccarthy
+>> ssh bollee
+>> ssh bellman
+>> ssh householder
+>> ssh mccarthy
 to see if you can connect to them successfully or not.
 
 
@@ -67,32 +67,18 @@ Then cd to folder DistributedSMOS
 
 To compare Iterative and Sorting version of SMOS, firstly using one of the four
 ssh command above to connect to those computers remotely. Then, using the following
-command one by one to compile the files:
-PATH=$PATH:/usr/local/cuda/bin
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c iterativeSMOS.cu -o iterativeSMOS.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c bucketMultiselect.cu -o bucketMultiselect.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c iterativeSMOSTimingFunctions.cu -o iterativeSMOSTimingFunctions.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c generateProblems.cu -o generateProblems.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c printFunctions.cu -o printFunctions.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c compareIterativeSMOS.cu -o compareIterativeSMOS.o
-nvcc iterativeSMOS.o bucketMultiselect.o iterativeSMOSTimingFunctions.o generateProblems.o printFunctions.o compareIterativeSMOS.o -lcudart -lcurand -I./lib/ -I. -L/usr/local/cuda/lib64 -arch=sm_60 -o compareIterativeSMOS
+command to compile the files:
+>> PATH=$PATH:/usr/local/cuda/bin
+>> make iterative
 
 
 
 
 To compare Distributed and Iterative version of SMOS, firstly using one of the four
 ssh command above to connect to those computers remotely. Then, using the following
-command one by one to compile the files:
-PATH=$PATH:/usr/local/cuda/bin
-mpic++ -c -I/usr/local/cuda/include -I/usr/local/cuda-11.4/include -I./lib/ -I. -L/usr/local/cuda/lib64 distributedSMOS.cpp -o distributedSMOS.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c distributedSMOS_Kernel.cu -o distributedSMOS_Kernel.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c iterativeSMOS.cu -o iterativeSMOS.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c distributedSMOSTimingFunctions_Kernel.cu -o distributedSMOSTimingFunctions_Kernel.o
-mpic++ -c -I/usr/local/cuda/include -I/usr/local/cuda-11.4/include -I./lib/ -I. -L/usr/local/cuda/lib64 distributedSMOSTimingFunctions.cpp -o distributedSMOSTimingFunctions.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c generateProblems.cu -o generateProblems.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c printFunctions.cu -o printFunctions.o
-mpic++ -c -I/usr/local/cuda/include -I/usr/local/cuda-11.4/include -I./lib/ -I. -L/usr/local/cuda/lib64 compareDistributedSMOS.cpp -o compareDistributedSMOS.o
-mpic++ compareDistributedSMOS.o distributedSMOSTimingFunctions.o distributedSMOSTimingFunctions_Kernel.o generateProblems.o printFunctions.o bucketMultiselect.o iterativeSMOS.o distributedSMOS.o distributedSMOS_Kernel.o -lcudart -lcurand -I./lib/ -I. -L/usr/local/cuda/lib64 -o compareDistributedSMOS
+command to compile the files:
+>> PATH=$PATH:/usr/local/cuda/bin
+>> make distributed
 
 
 
@@ -105,10 +91,10 @@ mpic++ compareDistributedSMOS.o distributedSMOSTimingFunctions.o distributedSMOS
  
 To begin with, you have to make sure you can remote connect to following 
 computers using ssh without entering password. Try typing the command
-ssh bollee
-ssh bellman
-ssh householder
-ssh mccarthy
+>> ssh bollee
+>> ssh bellman
+>> ssh householder
+>> ssh mccarthy
 to see if you can connect to them successfully or not.
 
 
@@ -116,13 +102,43 @@ Then cd to folder DistributedSMOS-1
 
 
 To compare Iterative and Sorting version of SMOS, type
-./compareIterativeSMOS
+>> ./compareIterativeSMOS
 
 
 To compare Distributed and Iterative version of SMOS, type
-mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./compareDistributedSMOS
+>> mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./compareDistributedSMOS
 
 
-Github Token: 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
-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
-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
+
+ ************************************************************************
+ ************************************************************************
+ ********************* PROCESSING DATA **********************************
+ ************************************************************************
+ ************************************************************************
+
+
+ To process the output data, you should compile readMultiSelectOutput.cpp
+ by executing
+
+ >> make ProcessData
+
+ Then run 
+
+ >> ./readDistriSMOSoutput
+
+ To generate the plots and tables in the paper, run
+
+ >> readscript
+
+ Then, open the appropriate *.m files, input the correct date(s), and 
+ execute the *.m files in MATLAB.
+
+ To see the values reported by SMOSanalyze, execute
+
+ >> cat CR* | grep "k value"
+
+ where we have assumed all data files in the folder are relevant.  Adding 
+ more information to "CR*" will permit you to use only the relevant files.
+
+JDB
+

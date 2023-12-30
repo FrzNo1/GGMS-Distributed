@@ -1,0 +1,145 @@
+#!/bin/bash
+# Run all the processing of the data for SMOS
+
+
+Today="$(date +"%Y%m%d")"
+
+# basefile names we need
+FUU="float UNIFORM FLOATS k-dist:Uniform Ks"
+FUR="float UNIFORM FLOATS k-dist:Uniform Random Ks"
+FUN="float UNIFORM FLOATS k-dist:Normal Random Ks"
+FUS="float UNIFORM FLOATS k-dist:Sectioned Ks"
+FUC="float UNIFORM FLOATS k-dist:Cluster Ks"
+FNU="float NORMAL FLOATS k-dist:Uniform Ks"
+FHU="float HALF NORMAL FLOATS k-dist:Uniform Ks"
+FCU="float CAUCHY FLOAT k-dist:Uniform Ks"
+DUU="double UNIFORM DOUBLES k-dist:Uniform Ks"
+DUR="double UNIFORM DOUBLES k-dist:Uniform Random Ks"
+DUN="double UNIFORM DOUBLES k-dist:Normal Random Ks"
+DUS="double UNIFORM DOUBLES k-dist:Sectioned Ks"
+DUC="double UNIFORM DOUBLES k-dist:Cluster Ks"
+DNU="double NORMAL DOUBLES k-dist:Uniform Ks"
+UUU="uint UNIFORM UNSIGNED INTEGERS k-dist:Uniform Ks"
+
+# run through them all, read the output, and save them to files with usable names
+Value=$FUU
+Name=FUU$Today
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" "Summary$Name.csv"
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$FUR
+Name="FUR$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$FUN
+Name="FUN$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$FUS
+Name="FUS$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$FUC
+Name="FUC$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$FNU
+Name="FNU$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$FHU
+Name="FHU$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$FCU
+Name="FCU$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$DUU
+Name="DUU$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$DUR
+Name="DUR$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$DUN
+Name="DUN$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$DUS
+Name="DUS$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$DUC
+Name="DUC$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$DNU
+Name="DNU$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+Value=$UUU
+Name="UUU$Today"
+./readMultiselectOutput "$Value"
+mv "RatioSummary$Value.csv" RatioSummary$Name.csv
+mv "RatioOverview$Value.csv" RatioOverview$Name.csv
+mv "Summary$Value.csv" Summary$Name.csv
+mv "Overview$Value.csv" Overview$Name.csv
+
+

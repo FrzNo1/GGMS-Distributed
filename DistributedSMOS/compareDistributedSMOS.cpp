@@ -43,6 +43,7 @@
 
 //Include other files
 
+#include "bucketMultiselect.cuh"
 #include "iterativeSMOS.cuh"
 #include "distributedSMOS.hpp"
 
@@ -53,9 +54,9 @@
 
 
 #define RANK_NUM 4
-#define NUMBEROFALGORITHMS 3
+#define NUMBEROFALGORITHMS 4
 char* namesOfMultiselectTimingFunctions[NUMBEROFALGORITHMS] =
-        {"Sort and Choose Multiselect",  "IterativeSMOS", "DistributedSMOS"};
+        {"Sort and Choose Multiselect",  "BucketMultiSelect", "IterativeSMOS", "DistributedSMOS"};
 
 #define NUMBEROFKDISTRIBUTIONS 5
 
@@ -189,6 +190,7 @@ namespace CompareDistributedSMOS {
         //these are the functions that can be called
         ptrToTimingFunction arrayOfTimingFunctions[NUMBEROFALGORITHMS] =
                 {&timeSortAndChooseMultiselect<T>,
+                 &timeBucketMultiSelect<T>, 
                  &timeIterativeSMOS<T>,
                  &timeDistributedSMOS<T>};
 
@@ -485,7 +487,7 @@ namespace CompareDistributedSMOS {
     template<typename T>
     void runTests (uint generateType, char* fileName, uint startPower, uint stopPower
             , uint timesToTestEachK, uint kDistribution, uint startK, uint stopK, uint kJump, int rank) {
-        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 1};
+        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 1, 1};
         uint size;
         uint i;
         uint arrayOfKs[stopK+1];
