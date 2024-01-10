@@ -36,7 +36,8 @@ ITER = \
 compareIterativeSMOS
 
 DIST = \
-compareDistributedSMOS
+compareDistributedSMOS \
+runTestsDistributedSMOS
 
 CompareIterativeSMOSSRC = \
 bucketMultiselect.cu iterativeSMOS.cu \
@@ -53,9 +54,18 @@ distributedSMOSTimingFunctions.cpp \
 generateProblems.cu printFunctions.cu \
 compareDistributedSMOS.cpp
 
+RunTestsDistributedSMOSSRC = \
+distributedSMOS.cpp distributedSMOS_Kernel.cu \
+iterativeSMOS.cu bucketMultiselect.cu \
+distributedSMOSTimingFunctions_Kernel.cu \
+distributedSMOSTimingFunctions.cpp \
+generateProblems.cu printFunctions.cu \
+runTestsDistributedSMOS.cpp
+
 CompareDistributedSMOSOBJS = $(CompareDistributedSMOSSRC:.cu=.o)
 CompareDistributedSMOSOBJS := $(CompareDistributedSMOSOBJS:.cpp=.o)
-
+RunTestsDistributedSMOSOBJS = $(RunTestsDistributedSMOSSRC:.cu=.o)
+RunTestsDistributedSMOSOBJS := $(RunTestsDistributedSMOSOBJS:.cpp=.o)
 
 
 
@@ -68,6 +78,9 @@ compareIterativeSMOS: $(CompareIterativeSMOSOBJS)
 	
 compareDistributedSMOS: $(CompareDistributedSMOSOBJS)
 	$(MPICPP) $(CompareDistributedSMOSOBJS) $(MPICPPLINK) -o $@
+	
+runTestsDistributedSMOS: $(RunTestsDistributedSMOSOBJS)
+	$(MPICPP) $(RunTestsDistributedSMOSOBJS) $(MPICPPLINK) -o $@
 	
 ProcessData: readDistriSMOSoutputfile.cpp
 	$(CXX) -o readDistriSMOSoutput readDistriSMOSoutputfile.cpp $(CXXFLAGS)
@@ -82,6 +95,9 @@ distributedSMOSTimingFunctions.o: distributedSMOSTimingFunctions.cpp
 compareDistributedSMOS.o: compareDistributedSMOS.cpp
 	$(MPICPP) -c $(MPICPPFLAGS) $< -o $@
 	
+runTestsDistributedSMOS.o: runTestsDistributedSMOS.cpp
+	$(MPICPP) -c $(MPICPPFLAGS) $< -o $@
+	
 %.o: %.cu
 	$(NVCC) -c $(NVCCFLAGS) $< -o $@
 
@@ -93,4 +109,4 @@ compareDistributedSMOS.o: compareDistributedSMOS.cpp
 	
 .PHONY: clean
 clean:
-	rm -f *.o compareIterativeSMOS compareDistributedSMOS readDistriSMOSoutput
+	rm -f *.o compareIterativeSMOS compareDistributedSMOS runTestsDistributedSMOS readDistriSMOSoutput

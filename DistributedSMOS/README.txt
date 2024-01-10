@@ -106,6 +106,7 @@ To compare Iterative and Sorting version of SMOS, type
 
 
 To compare Distributed and Iterative version of SMOS, type
+>> ssh bollee
 >> mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./compareDistributedSMOS
 
 

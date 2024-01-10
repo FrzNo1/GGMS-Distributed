@@ -47,7 +47,7 @@
 #include "iterativeSMOS.cuh"
 #include "distributedSMOS.hpp"
 
-#include "distributedSMOSTimingFunctionsOld.cuh"
+#include "distributedSMOSTimingFunctions.hpp"
 #include "generateProblems.cuh"
 #include "printFunctions.cuh"
 
@@ -56,8 +56,7 @@
 #define RANK_NUM 4
 #define NUMBEROFALGORITHMS 4
 char* namesOfMultiselectTimingFunctions[NUMBEROFALGORITHMS] =
-        {"Sort and Choose Multiselect", "Bucket Multiselect", "IterativeSMOS", "DistributedSMOS"};
-#define ORDEROFDISTRIBUTEDSMOS 3
+        {"Sort and Choose Multiselect",  "BucketMultiSelect", "IterativeSMOS", "DistributedSMOS"};
 
 #define NUMBEROFKDISTRIBUTIONS 5
 
@@ -126,6 +125,13 @@ void MPI_Recv_CALL(T *buf, int count, int source, int tag,
 	41: host send runOrder to each slot in compareMultiselectAlgorithms
 	42: host send h_vec_distributed to each slot in compareMultiselectAlgorithms
 	43: host send h_vec_copy to each slot in compareMultiselectAlgorithms
+	
+	
+	100: host send startSignal to each rank in runTests
+	101: host send stopSignal to each rank in runTests
+	102: host send startSignal to each rank in  compareMultiselectAlgorithms
+	103: host send stopSignal to each rank in  compareMultiselectAlgorithms
+	104: host send stopSignal to each rank in  compareMultiselectAlgorithms
 */
 
 
@@ -162,13 +168,17 @@ namespace CompareDistributedSMOS {
         uint i,j,m,x;
         int runOrder[NUMBEROFALGORITHMS];
         
+        int startSignal = 1;
+        int stopSignal = 0;
+        
+        /*
         // allocate space for distributedSMOS vector
         uint distributed_size = size / RANK_NUM;
         T *h_vec_distributed, *h_vec_distributed_send, *h_vec_distributed_copy;
         h_vec_distributed = (T *) malloc(distributed_size * sizeof(T));
         h_vec_distributed_copy = (T *) malloc(distributed_size * sizeof(T));
         h_vec_distributed_send = (T *) malloc(distributed_size * sizeof(T));
-        
+        */
 
         unsigned long long seed;
         results_t<T> *temp;
@@ -180,7 +190,7 @@ namespace CompareDistributedSMOS {
         //these are the functions that can be called
         ptrToTimingFunction arrayOfTimingFunctions[NUMBEROFALGORITHMS] =
                 {&timeSortAndChooseMultiselect<T>,
-                 &timeBucketMultiselect<T>,
+                 &timeBucketMultiSelect<T>, 
                  &timeIterativeSMOS<T>,
                  &timeDistributedSMOS<T>};
 
@@ -194,13 +204,14 @@ namespace CompareDistributedSMOS {
 
 		cudaThreadSynchronize();
         MPI_Barrier(MPI_COMM_WORLD);
+        
+        // this is the array of names of functions that generate problems of this type,
+        // ie float, double, or uint
+        namesOfGeneratingFunctions = returnNamesOfGenerators<T>();
+        arrayOfGenerators = (ptrToGeneratingFunction *) returnGenFunctions<T>(type);
 		
 		
         if (rank == 0) {
-            // this is the array of names of functions that generate problems of this type,
-            // ie float, double, or uint
-            namesOfGeneratingFunctions = returnNamesOfGenerators<T>();
-            arrayOfGenerators = (ptrToGeneratingFunction *) returnGenFunctions<T>(type);
 
             printf("Files will be written to %s\n", fileNamecsv);
             fileCsv.open(fileNamecsv, ios_base::app);
@@ -231,12 +242,35 @@ namespace CompareDistributedSMOS {
 			
 			float currentWinningTime = INFINITY;
 			
-            if (rank == 0) {
-                //cudaDeviceReset();
-                gettimeofday(&t1, NULL);
-                seed = t1.tv_usec * t1.tv_sec;
-                // seed = 830359020905406;
+			//cudaDeviceReset();
+            gettimeofday(&t1, NULL);
+            seed = t1.tv_usec * t1.tv_sec;
+            // seed = 830359020905406;
+            
+            curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);       // potentially not work
+            curandSetPseudoRandomGeneratorSeed(generator, seed);
+            
+            if (rank == 1) {
+            printf("Running test %u of %u for size: %u and numK: %u\n", i + 1,
+                   numTests, size, numKs);
+            }
+                   
+            cudaThreadSynchronize();
+
+            //generate the random vector using the specified distribution
+            if (data == NULL)
+                arrayOfGenerators[generateType](h_vec, size, generator);
+            else
+                h_vec = data;
                 
+            cudaThreadSynchronize();
+
+            //copy the vector to h_vec_copy, which will be used to restore it later
+            memcpy(h_vec_copy, h_vec, size * sizeof(T));
+
+
+
+            if (rank == 0) {
                 // test part
                 // printf("vector generater seed: %llu\n", seed);
 
@@ -248,40 +282,7 @@ namespace CompareDistributedSMOS {
                         namesOfGeneratingFunctions[generateType] << "," <<
                         namesOfKGenerators[kGenerateType] << ",";
                         
-                cudaThreadSynchronize();
-
-                curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);       // potentially not work
-                curandSetPseudoRandomGeneratorSeed(generator, seed);
-                printf("Running test %u of %u for size: %u and numK: %u\n", i + 1,
-                       numTests, size, numKs);
-                       
-                cudaThreadSynchronize();
-
-                //generate the random vector using the specified distribution
-                if (data == NULL)
-                    arrayOfGenerators[generateType](h_vec, size, generator);
-                else
-                    h_vec = data;
-                    
-                cudaThreadSynchronize();
-
-                //copy the vector to h_vec_copy, which will be used to restore it later
-                memcpy(h_vec_copy, h_vec, size * sizeof(T));
-                
-                /*
-                // test part
-                printf("vector: \n");
-                for (int x = 0; x < 10000; x++) {
-                	printf("%u, ", h_vec[x]);
-                }
-                
-                // test part
-                printf("k: \n");
-                for (int x = 0; x < numKs; x++) {
-                	printf("%u, ", kVals[x]);
-                }
-                */
-                
+                cudaThreadSynchronize();             
 
                 winnerArray[i] = 0;
                 // float currentWinningTime = INFINITY;
@@ -294,128 +295,26 @@ namespace CompareDistributedSMOS {
             
             // send information to other ranks
             if (rank == 0) {
-            	for (int y = 0; y < distributed_size; y++) {
-            		h_vec_distributed[y] = h_vec[y];
-            	}
             	
             	for (int z = 1; z < RANK_NUM; z++) {
             		MPI_Send(runOrder, NUMBEROFALGORITHMS, MPI_INT, z, 41, MPI_COMM_WORLD);
-            		
-            		for (int y = 0; y < distributed_size; y++) {
-            			h_vec_distributed_send[y] = h_vec[y + z * distributed_size];
-            		}
-            		
-            		MPI_Send_CALL(h_vec_distributed_send, distributed_size, z, 42, MPI_COMM_WORLD);
-            		
-            		// test part
-            		// MPI_Send_CALL(h_vec_copy, size, z, 43, MPI_COMM_WORLD);
             	}
             }
             
             if (rank != 0) {
             	MPI_Recv(runOrder, NUMBEROFALGORITHMS, MPI_INT, 0, 41, MPI_COMM_WORLD,
 					     MPI_STATUS_IGNORE);
-				MPI_Recv_CALL(h_vec_distributed, distributed_size, 0, 42, MPI_COMM_WORLD,
-					     MPI_STATUS_IGNORE);
-					     
-				// test part
-				// MPI_Recv_CALL(h_vec_copy, size, 0, 43, MPI_COMM_WORLD,
-					     // MPI_STATUS_IGNORE);
-            
             }
             
             MPI_Barrier(MPI_COMM_WORLD);
-            cudaDeviceSynchronize();
-            
-            /*
-            //test part
-            if (rank == 0) {
-            	printf("from rank 0, h_vec: 0 %f, %d %f, %d %f\n", h_vec[0], size/4*2, h_vec[size/4*2], size-1, h_vec[size-1]);
-            	printf("from rank 0, h_vec_distributed: 0 %f\n", h_vec_distributed[0]);
-            }
-            if (rank == 2) {
-            	printf("from rank 2, h_vec_distributed: %d %f\n", size/4*2, h_vec_distributed[0]);
-            }
-            if (rank == 3) {
-            	printf("from rank 3, h_vec_distributed: %d %f\n", size-1, h_vec_distributed[distributed_size-1]);
-            }
-            */
-            
-            memcpy(h_vec_distributed_copy, h_vec_distributed, distributed_size * sizeof(T));
-            MPI_Barrier(MPI_COMM_WORLD);
-            
-            /*
-            // test part
-            // test whether or not vector are all same
-            if (true) {
-				printf("test vector on slot: distributedsize: %d\n", distributed_size);
-				for (int p = 0; p < distributed_size; p++) {
-					if (h_vec_copy[p + distributed_size * rank] != h_vec_distributed_copy[p]) {
-						printf("rank: %d : num: %d, vec_copy: %llu, vec_distributed_copy: %llu\n", 
-								rank, p, h_vec_copy[p + distributed_size * rank], h_vec_distributed_copy[p]);
-					}
-				}
-				printf("rank %d done test vector", rank);
-			}
-			*/
-			
-            
-            // run the tests for distributedSMOS
-            if (algorithmsToTest[ORDEROFDISTRIBUTEDSMOS]) {
-                j = ORDEROFDISTRIBUTEDSMOS;
+            cudaDeviceSynchronize();		
 
-                if (rank == 0)
-                    printf("TESTING: %u\n", j);
-                    
-                MPI_Barrier(MPI_COMM_WORLD);
-
-                temp = arrayOfTimingFunctions[j](h_vec_distributed_copy, distributed_size, kVals, numKs, rank);
-
-                cudaDeviceSynchronize();
-                MPI_Barrier(MPI_COMM_WORLD);
-
-                if (rank == 0) {
-                    //record the time result
-                    timeArray[j][i] = temp->time;
-                    //record the value returned
-                    resultsArray[j][i] = temp->vals;
-                    //update the current "winner" if necessary
-                    if(timeArray[j][i] < currentWinningTime){
-                        currentWinningTime = temp->time;
-                        winnerArray[i] = j;
-                    }
-                }
-                
-                /*
-                // test part
-                if (rank == 0) {
-            		// test part
-	                printf("testing %d:\n", j);
-	                for (int xx = 0; xx < numKs; xx++) {
-	                	printf("%u  ", (temp->vals)[xx]);
-	                }
-	                printf("\n");
-                }
-                */
-                
-				
-				memcpy(h_vec_distributed_copy, h_vec_distributed, distributed_size * sizeof(T));
-                free(temp);
-                
-                MPI_Barrier(MPI_COMM_WORLD);
-            }
-            
             MPI_Barrier(MPI_COMM_WORLD);
 
 			
             // run all the algorithms excepts the distributedSMOS
             for(x = 0; x < NUMBEROFALGORITHMS; x++){
             	MPI_Barrier(MPI_COMM_WORLD);
-            	
-            	
-            	// skip the distributedSMOS test
-            	if (runOrder[x] == ORDEROFDISTRIBUTEDSMOS)
-            		continue;
             	
                 j = runOrder[x];
                 
@@ -425,10 +324,37 @@ namespace CompareDistributedSMOS {
                 	if (rank == 0) {
 		                //run timing function j
 		                printf("TESTING: %u\n", j);
-		                temp = arrayOfTimingFunctions[j](h_vec_copy, size, kVals, numKs, rank);
+		            }
+		            
+					
+					// use start signal to make sure each rank is at the same stage
+					if (rank == 0) {
+						for (int i = 1; i < RANK_NUM; i++) {
+							MPI_Send_CALL(&startSignal, 1, i, 102, MPI_COMM_WORLD);
+						}
+					}
+					
+					if (rank != 0) {
+						MPI_Recv_CALL(&startSignal, 1, 0, 102, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					}
+		            
+		            temp = arrayOfTimingFunctions[j](h_vec_copy, size, kVals, numKs, rank);
+		            
+		            
+		            // use stop signal to make sure each rank is at the same stage
+					if (rank == 0) {
+						for (int i = 1; i < RANK_NUM; i++) {
+							MPI_Send_CALL(&stopSignal, 1, i, 103, MPI_COMM_WORLD);
+						}
+					}
+					
+					if (rank != 0) {
+						MPI_Recv_CALL(&stopSignal, 1, 0, 103, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					}
 		                
-		                cudaDeviceSynchronize();
+		            cudaDeviceSynchronize();
 
+					if (rank == 0) {
 		                //record the time result
 		                timeArray[j][i] = temp->time;
 		                //record the value returned
@@ -438,21 +364,22 @@ namespace CompareDistributedSMOS {
 		                    currentWinningTime = temp->time;
 		                    winnerArray[i] = j;
 		                }
-		                
-		                /*
-		                // test part
-		                printf("testing %d:\n", j);
-		                for (int xx = 0; xx < numKs; xx++) {
-		                	printf("%u  ", (temp->vals)[xx]);
-		                }
-		                printf("\n");
-		                */
-		                
-
-		                //perform clean up
-		                free(temp);
-		                memcpy(h_vec_copy, h_vec, size * sizeof(T));
                     }
+                    
+                   	
+                   	// use stop signal to make sure each rank is at the same stage
+					if (rank == 0) {
+						for (int i = 1; i < RANK_NUM; i++) {
+							MPI_Send_CALL(&stopSignal, 1, i, 104, MPI_COMM_WORLD);
+						}
+					}
+					
+					if (rank != 0) {
+						MPI_Recv_CALL(&stopSignal, 1, 0, 104, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					}
+                    
+                    free(temp);
+		            memcpy(h_vec_copy, h_vec, size * sizeof(T));
                 }
                 
             	MPI_Barrier(MPI_COMM_WORLD);
@@ -461,9 +388,10 @@ namespace CompareDistributedSMOS {
 
             cudaDeviceSynchronize();
             MPI_Barrier(MPI_COMM_WORLD);
+            
+            curandDestroyGenerator(generator);
 
             if (rank == 0) {
-                curandDestroyGenerator(generator);
                 for (x = 0; x < NUMBEROFALGORITHMS; x++)
                     if (algorithmsToTest[x])
                         fileCsv << namesOfMultiselectTimingFunctions[x] << "," << timeArray[x][i] << ",";
@@ -550,11 +478,6 @@ namespace CompareDistributedSMOS {
             free(h_vec);
         free(h_vec_copy);
 
-        // free h_vec_distributed and h_vec_distributed_copy
-    	free(h_vec_distributed);
-        free(h_vec_distributed_send);
-        free(h_vec_distributed_copy);
-
         MPI_Barrier(MPI_COMM_WORLD);
     }
 
@@ -568,6 +491,8 @@ namespace CompareDistributedSMOS {
         uint size;
         uint i;
         uint arrayOfKs[stopK+1];
+        int startSignal = 1;
+        int stopSignal = 0;
         
         typedef void (*ptrToKDistributionGenerator)(uint *, uint, uint, curandGenerator_t);
         ptrToKDistributionGenerator arrayOfKDistributionGenerators[NUMBEROFKDISTRIBUTIONS]
@@ -623,33 +548,63 @@ namespace CompareDistributedSMOS {
             }
             
             
+            
 			MPI_Barrier(MPI_COMM_WORLD);
 			
-			/*
-			//test part
-            if (rank == 2) {
-            	printf("from rank 2, arrayOfKs[stopK-2]: %u", arrayOfKs[stopK-2]);
-            	printf("from rank 2, arrayOfKs[stopK-1]: %u", arrayOfKs[stopK-1]);
-            	printf("from rank 2, arrayOfKs[stopK]: %u", arrayOfKs[stopK]);
-            }
-            */
+			// use start signal to make sure each rank is at the same stage
+			if (rank == 0) {
+				for (int i = 1; i < RANK_NUM; i++) {
+					MPI_Send_CALL(&startSignal, 1, i, 99, MPI_COMM_WORLD);
+				}
+			}
+			
+			if (rank != 0) {
+				MPI_Recv_CALL(&startSignal, 1, 0, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			}
 
             for(i = startK; i <= stopK; i+=kJump) {
-                cudaDeviceReset();
-                cudaThreadExit();
+                // cudaDeviceReset();
+                // cudaThreadExit();
 
                 if (rank == 0)
                     printf("NOW ADDING ANOTHER K\n\n");
 
                 MPI_Barrier(MPI_COMM_WORLD);
+                cudaDeviceSynchronize();
+                
+                // use start signal to make sure each rank is at the same stage
+				if (rank == 0) {
+					for (int i = 1; i < RANK_NUM; i++) {
+						MPI_Send_CALL(&startSignal, 1, i, 100, MPI_COMM_WORLD);
+					}
+				}
+				
+				if (rank != 0) {
+					MPI_Recv_CALL(&startSignal, 1, 0, 100, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				}
+				
+				MPI_Barrier(MPI_COMM_WORLD);
+                cudaDeviceSynchronize();
 				
 				
                 compareMultiselectAlgorithms<T>(size, arrayOfKs, i, timesToTestEachK,
                                                 algorithmsToRun, generateType, kDistribution, fileName, rank);
+                                                
+                // use stop signal to make sure each rank is at the same stage
+				if (rank == 0) {
+					for (int i = 1; i < RANK_NUM; i++) {
+						MPI_Send_CALL(&stopSignal, 1, i, 101, MPI_COMM_WORLD);
+					}
+				}
+				
+				if (rank != 0) {
+					MPI_Recv_CALL(&stopSignal, 1, 0, 101, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+				}
                 
                 
                                                 
                 MPI_Barrier(MPI_COMM_WORLD);
+                cudaDeviceSynchronize();
                 
             }
 
@@ -694,7 +649,7 @@ int main (int argc, char *argv[]) {
     // get information from user
     if (rank == 0) {
     	
-    	
+    	/*
 		printf("Please enter the type of value you want to test:\n0-float\n1-double\n2-uint\n");
 		scanf("%u", &type);
 		printf("Please enter distribution type: ");
@@ -715,22 +670,16 @@ int main (int argc, char *argv[]) {
 		scanf("%u", &stopK);
 		printf("Please enter number of tests to run per K: ");
 		scanf("%u", &testCount);
-		
-		
-		
-		/*
-		// test part
-		type = 0;
-		distributionType = 0;
-		kDistribution = 0;
-		startPower = 26;
-		stopPower = 26;
-		startK = 900;
-		jumpK = 10;
-		stopK =900;
-		testCount = 4;
 		*/
-		
+		type = (unsigned int)atoi(argv[1]);
+		distributionType = (unsigned int)atoi(argv[2]);
+		kDistribution = (unsigned int)atoi(argv[3]);
+		startPower = (unsigned int)atoi(argv[4]);
+		stopPower = (unsigned int)atoi(argv[5]);
+		startK = (unsigned int)atoi(argv[6]);
+		jumpK = (unsigned int)atoi(argv[7]);
+		stopK = (unsigned int)atoi(argv[8]);
+		testCount = (unsigned int)atoi(argv[9]);
     }
     
     MPI_Barrier(MPI_COMM_WORLD);
@@ -764,24 +713,6 @@ int main (int argc, char *argv[]) {
     }
     
     MPI_Barrier(MPI_COMM_WORLD);
-    
-    /*
-    // test part
-    if (rank == 2) {
-    	printf("rank 2, type: %u\n", type);
-    	printf("rank 2, distributionType: %u\n", distributionType);
-    	printf("rank 2, kDistribution: %u\n", kDistribution);
-    	printf("rank 2, startPower: %u\n", startPower);
-    	printf("rank 2, stopPower: %u\n", stopPower);
-    	printf("rank 2, startK: %u\n", startK);
-    	printf("rank 2, jumpK: %u\n", jumpK);
-    	printf("rank 2, stopK: %u\n", stopK);
-    	printf("rank 2, testCount: %u\n", testCount);
-    }
-    */
-    
-    
-
     switch(type){
         case 0:
             typeString = "float";
