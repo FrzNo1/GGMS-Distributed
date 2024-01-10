@@ -101,13 +101,18 @@ to see if you can connect to them successfully or not.
 Then cd to folder DistributedSMOS-1
 
 
-To compare Iterative and Sorting version of SMOS, type
+To compare Iterative and Sorting version of SMOS, with user specific value, type
 >> ./compareIterativeSMOS
 
 
-To compare Distributed and Iterative version of SMOS, type
+To compare Distributed and Iterative version of SMOS, with user specific value, type
 >> ssh bollee
 >> mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./compareDistributedSMOS
+
+
+To run tests that are generated continuously in the paper, simply type
+>> ssh bollee
+>> runTests
 
 
 
