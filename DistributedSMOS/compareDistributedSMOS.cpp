@@ -43,7 +43,7 @@
 
 //Include other files
 
-#include "bucketMultiselect.cuh"
+#include "distributedBucketMultiselect.hpp"
 #include "iterativeSMOS.cuh"
 #include "distributedSMOS.hpp"
 
@@ -56,7 +56,8 @@
 #define RANK_NUM 4
 #define NUMBEROFALGORITHMS 4
 char* namesOfMultiselectTimingFunctions[NUMBEROFALGORITHMS] =
-        {"Sort and Choose Multiselect",  "BucketMultiSelect", "IterativeSMOS", "DistributedSMOS"};
+        {"Sort and Choose Multiselect",  "DistributedBucketMultiSelect",
+         "DistributedIterativeSMOS", "DistributedSMOS"};
 
 #define NUMBEROFKDISTRIBUTIONS 5
 
@@ -190,7 +191,7 @@ namespace CompareDistributedSMOS {
         //these are the functions that can be called
         ptrToTimingFunction arrayOfTimingFunctions[NUMBEROFALGORITHMS] =
                 {&timeSortAndChooseMultiselect<T>,
-                 &timeBucketMultiSelect<T>, 
+                 &timeDistributedBucketMultiselect<T>, 
                  &timeIterativeSMOS<T>,
                  &timeDistributedSMOS<T>};
 
@@ -245,7 +246,12 @@ namespace CompareDistributedSMOS {
 			//cudaDeviceReset();
             gettimeofday(&t1, NULL);
             seed = t1.tv_usec * t1.tv_sec;
-            // seed = 830359020905406;
+            // seed = 1382741741538411;
+            
+            /*
+            // test part
+            printf("vector generater seed: %llu\n", seed);
+            */
             
             curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);       // potentially not work
             curandSetPseudoRandomGeneratorSeed(generator, seed);
@@ -487,7 +493,7 @@ namespace CompareDistributedSMOS {
     template<typename T>
     void runTests (uint generateType, char* fileName, uint startPower, uint stopPower
             , uint timesToTestEachK, uint kDistribution, uint startK, uint stopK, uint kJump, int rank) {
-        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 1, 1};
+        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 0, 1};
         uint size;
         uint i;
         uint arrayOfKs[stopK+1];
@@ -507,9 +513,10 @@ namespace CompareDistributedSMOS {
                 timeval t1;
                 gettimeofday(&t1, NULL);
                 seed = t1.tv_usec * t1.tv_sec;
-                // seed = 272017605375852;
+                // seed = 1266150597711659;
                 // test part
                 // printf("k generater seed: %llu\n", seed);
+                
                 
                 // write k-order seed to file
                 ofstream fileCsv;
@@ -669,6 +676,21 @@ int main (int argc, char *argv[]) {
 		scanf("%u", &stopK);
 		printf("Please enter number of tests to run per K: ");
 		scanf("%u", &testCount);
+		
+		
+		/*
+		// test part
+		type = 2;
+		distributionType = 0;
+		kDistribution = 0;
+		startPower = 25;
+		stopPower = 25;
+		startK = 100;
+		jumpK = 50;
+		stopK = 500;
+		testCount = 4;
+		*/
+		
     }
     
     MPI_Barrier(MPI_COMM_WORLD);

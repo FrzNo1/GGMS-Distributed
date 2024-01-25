@@ -13,21 +13,15 @@
 #include <sys/time.h>
 #include <time.h>
 
-#include "distributedSMOS_Kernel.cuh"
+#include "distributedBucketMultiselect_Kernel.cuh"
 
 #define MAX_THREADS_PER_BLOCK 1024
-
-/// ***********************************************************
-/// ***********************************************************
-/// **** Thrust Functions Library
-/// ***********************************************************
-/// ***********************************************************
 
 using namespace std;
 
 // thrust::minmax_element function
 template <typename T>
-void minmax_element_CALL(T* d_vector, int length, T* maximum, T* minimum) {
+void minmax_element_CALL_B(T* d_vector, int length, T* maximum, T* minimum) {
 	thrust::device_ptr<T>dev_ptr(d_vector);
 	thrust::pair<thrust::device_ptr<T>, thrust::device_ptr<T> > result =
                 thrust::minmax_element(dev_ptr, dev_ptr + length);
@@ -38,19 +32,30 @@ void minmax_element_CALL(T* d_vector, int length, T* maximum, T* minimum) {
 
 
 
-template void minmax_element_CALL(int* d_vector, int length, int* maximum, int* minimum);
-template void minmax_element_CALL(unsigned int* d_vector, int length, unsigned int* maximum, unsigned int* minimum);
-template void minmax_element_CALL(double* d_vector, int length, double* maximum, double* minimum);
-template void minmax_element_CALL(float* d_vector, int length, float* maximum, float* minimum);
+template void minmax_element_CALL_B(int* d_vector, int length, int* maximum, int* minimum);
+template void minmax_element_CALL_B(unsigned int* d_vector, int length, unsigned int* maximum, unsigned int* minimum);
+template void minmax_element_CALL_B(double* d_vector, int length, double* maximum, double* minimum);
+template void minmax_element_CALL_B(float* d_vector, int length, float* maximum, float* minimum);
 
 
 // thrust::sort_by_key function
-void sort_by_key_CALL(unsigned int* d_kVals, unsigned int* d_kIndices, int numKs) {
+void sort_by_key_CALL_B(unsigned int* d_kVals, unsigned int* d_kIndices, int numKs) {
 	thrust::device_ptr<unsigned int>kVals_ptr(d_kVals);
 	thrust::device_ptr<unsigned int>kIndices_ptr(d_kIndices);
 	thrust::sort_by_key(kVals_ptr, kVals_ptr + numKs, kIndices_ptr);
 }
 
+// thrust::sort_by_key function
+template <typename T>
+void sort_vector_CALL_B(T* d_input, int length) {
+	thrust::device_ptr<T>input_ptr(d_input);
+	thrust::sort(input_ptr, input_ptr + length);
+}
+
+template void sort_vector_CALL_B(int* d_input, int length);
+template void sort_vector_CALL_B(unsigned int* d_input, int length);
+template void sort_vector_CALL_B(float* d_input, int length);
+template void sort_vector_CALL_B(double* d_input, int length);
 
 
 /// ***********************************************************
@@ -62,7 +67,7 @@ void sort_by_key_CALL(unsigned int* d_kVals, unsigned int* d_kIndices, int numKs
 /* This function initializes a vector to all zeros on the host (CPU).
  */
 template<typename T>
-void setToAllZero (T * d_vector, int length) {
+void setToAllZero_B (T * d_vector, int length) {
     cudaMemset(d_vector, 0, length * sizeof(T));
 }
 
@@ -74,7 +79,7 @@ void setToAllZero (T * d_vector, int length) {
    markedBuckets : buckets containing the corresponding k values
    sums : sum-so-far of the number of elements in the buckets where k values fall into
 */
-int findKBuckets(unsigned int * h_bucketCount, int numBuckets, 
+int findKBuckets_B(unsigned int * h_bucketCount, int numBuckets, 
 				const unsigned int * kVals, int numKs, unsigned int * sums, 
 				unsigned int * markedBuckets, int numBlocks) {
     int kBucket = 0;
@@ -94,6 +99,7 @@ int findKBuckets(unsigned int * h_bucketCount, int numBuckets,
     return 0;
 }
 
+
 /*
  * This function updates the correct kth orderstats if the bin only contains one element. While going through the
  * list of orderstats, it updates K since we have reduced the problem size to elements in the kth bucket. In
@@ -104,20 +110,19 @@ int findKBuckets(unsigned int * h_bucketCount, int numBuckets,
  * tempKorderBucket:  buckets which have only one element. That is, the bucket with correct kth orderstats
  */
 template <typename T>
-int updatekVals_distributive
+int updatekVals_distributive_B
 			(unsigned int * kVals, int * numKs, T * output, unsigned int * kIndicies,
              int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
              unsigned int * kthBucketScanner, unsigned int * reindexCounter,
              unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength) {
+             int * numUniqueBuckets, int * numUniqueBucketsOld) {
     int index = 0;
     int numKsindex = 0;
     *numUniqueBucketsOld = *numUniqueBuckets;
     *numUniqueBuckets = 0;
     *lengthOld = *length;
-    *tempKorderLength = 0;
 
+	/*
     // go through the markedbucket list. If there is only one element in array, we update it to tempKorderBucket
     while (index < *numKs) {
         if (h_bucketCount[markedBuckets[index]] == 1) {
@@ -130,10 +135,11 @@ int updatekVals_distributive
 
         break;
     }
+    */
 
     // get the index of the first buckets with more than one elements in it
     // add the number of elements and updates correct kth order
-    if (index < *numKs) {
+    // if (index < *numKs) {
         uniqueBuckets[0] = markedBuckets[index];
         uniqueBucketCounts[0] = h_bucketCount[markedBuckets[index]];
         reindexCounter[0] = 0;
@@ -142,12 +148,13 @@ int updatekVals_distributive
         kIndicies[0] = kIndicies[index];
         numKsindex++;
         index++;
-    }
+    // }
 
     // go through the markedbuckets list. If there is only one element in that bucket, updates it to
     // tempKorderBucket; if there is more than one, updates it to uniqueBucket
     for ( ; index < *numKs; index++) {
 
+		/*
         // case if there is only one element
         if (h_bucketCount[markedBuckets[index]] == 1) {
             tempKorderIndeces[*tempKorderLength] = kIndicies[index];
@@ -155,6 +162,7 @@ int updatekVals_distributive
             (*tempKorderLength)++;
             continue;
         }
+        */
 
         // case if the there is more than one element in the bucket and the bucket is not repeat with last one
         if (markedBuckets[index] != uniqueBuckets[(*numUniqueBuckets) - 1]) {
@@ -180,135 +188,37 @@ int updatekVals_distributive
     return 0;
 }
 
-template int updatekVals_distributive
+template int updatekVals_distributive_B
 			(unsigned int * kVals, int * numKs, int * output, unsigned int * kIndicies,
              int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
              unsigned int * kthBucketScanner, unsigned int * reindexCounter,
              unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-template int updatekVals_distributive
+             int * numUniqueBuckets, int * numUniqueBucketsOld);
+template int updatekVals_distributive_B
 			(unsigned int * kVals, int * numKs, unsigned int * output, unsigned int * kIndicies,
              int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
              unsigned int * kthBucketScanner, unsigned int * reindexCounter,
              unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-template int updatekVals_distributive
+             int * numUniqueBuckets, int * numUniqueBucketsOld);
+template int updatekVals_distributive_B
 			(unsigned int * kVals, int * numKs, float * output, unsigned int * kIndicies,
              int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
              unsigned int * kthBucketScanner, unsigned int * reindexCounter,
              unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-template int updatekVals_distributive
+             int * numUniqueBuckets, int * numUniqueBucketsOld);
+template int updatekVals_distributive_B
 			(unsigned int * kVals, int * numKs, double * output, unsigned int * kIndicies,
              int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
              unsigned int * kthBucketScanner, unsigned int * reindexCounter,
              unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
+             int * numUniqueBuckets, int * numUniqueBucketsOld);
              
-/*
- * None Iterative
- * This function updates the correct kth orderstats if the bin only contains one element. While going through the
- * list of orderstats, it updates K since we have reduced the problem size to elements in the kth bucket. In
- * addition, it updates the unique buckets list to avoid the situation where two order share the same buckets.
- *
- * kthBucketScanner:  sum-so-far of the number of elements in the buckets where k values fall into
- * uniqueBuckets:  the list to store all buckets which are active with no repeats
- * tempKorderBucket:  buckets which have only one element. That is, the bucket with correct kth orderstats
- */
-template <typename T>
-int updatekVals_nonDistributive
-			(unsigned int * kVals, int * numKs, T * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength) {
-    int index = 0;
-    int numKsindex = 0;
-    *numUniqueBucketsOld = *numUniqueBuckets;
-    *numUniqueBuckets = 0;
-    *lengthOld = *length;
-    *tempKorderLength = 0;
-
-    // get the index of the first buckets with more than one elements in it
-    // add the number of elements and updates correct kth order
-    
-    uniqueBuckets[0] = markedBuckets[index];
-    uniqueBucketCounts[0] = h_bucketCount[markedBuckets[index]];
-    reindexCounter[0] = 0;
-    *numUniqueBuckets = 1;
-    kVals[0] = kVals[index] - kthBucketScanner[index];
-    kIndicies[0] = kIndicies[index];
-    numKsindex++;
-    index++;
-    
-
-    // go through the markedbuckets list. If there is only one element in that bucket, updates it to
-    // tempKorderBucket; if there is more than one, updates it to uniqueBucket
-    for ( ; index < *numKs; index++) {
-
-        // case if the there is more than one element in the bucket and the bucket is not repeat with last one
-        if (markedBuckets[index] != uniqueBuckets[(*numUniqueBuckets) - 1]) {
-            uniqueBuckets[*numUniqueBuckets] = markedBuckets[index];
-            uniqueBucketCounts[*numUniqueBuckets] = h_bucketCount[markedBuckets[index]];
-            reindexCounter[*numUniqueBuckets] = reindexCounter[(*numUniqueBuckets) - 1]
-                                                + uniqueBucketCounts[(*numUniqueBuckets) - 1];
-            (*numUniqueBuckets)++;
-        }
-
-        // update korder
-        kVals[numKsindex] = reindexCounter[(*numUniqueBuckets) - 1] + kVals[index] - kthBucketScanner[index];
-        kIndicies[numKsindex] = kIndicies[index];
-        numKsindex++;
-    }
-
-    // update numKs and length of vector
-    *numKs = numKsindex;
-    if (*numKs > 0)
-        *length = reindexCounter[(*numUniqueBuckets) - 1] + uniqueBucketCounts[(*numUniqueBuckets) - 1];
-
-
-    return 0;
-}
-template int updatekVals_nonDistributive
-			(unsigned int * kVals, int * numKs, int * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-template int updatekVals_nonDistributive
-			(unsigned int * kVals, int * numKs, unsigned int * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-template int updatekVals_nonDistributive
-			(unsigned int * kVals, int * numKs, float * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-template int updatekVals_nonDistributive
-			(unsigned int * kVals, int * numKs, double * output, unsigned int * kIndicies,
-             int * length, int * lengthOld, unsigned int * h_bucketCount, unsigned int * markedBuckets,
-             unsigned int * kthBucketScanner, unsigned int * reindexCounter,
-             unsigned int * uniqueBuckets, unsigned int * uniqueBucketCounts,
-             int * numUniqueBuckets, int * numUniqueBucketsOld,
-             unsigned int * tempKorderBucket, unsigned int * tempKorderIndeces, int * tempKorderLength);
-           
-           
+             
 /*
  * Documentation
  * 
  */             
-int updateReindexCounter_distributive
+int updateReindexCounter_distributive_B
 			(unsigned int* reindexCounter, unsigned int* h_bucketCount, unsigned int* uniqueBuckets,
 			 int* length, int* length_Old, int numUniqueBuckets) {
 	reindexCounter[0] = 0;
@@ -324,38 +234,20 @@ int updateReindexCounter_distributive
 	return 0;	 
 }
 
-
 /*
  * This function swap pointers for the two lists
  */
 template <typename T>
-void swapPointers(T** a, T** b) {
+void swapPointers_B(T** a, T** b) {
     T * temp = * a;
     * a = * b;
     * b = temp;
 }
 
-template void swapPointers(int** a, int** b);
-template void swapPointers(unsigned int** a, unsigned int** b);
-template void swapPointers(float** a, float** b);
-template void swapPointers(double** a, double** b);
-
-/*
- * Documentation
- */
-template <typename T>
-T absolute(T a) {
-	if (a > 0.0)
-		return a;
-	else
-		return -a;
-}
-
-template int absolute(int a);
-template unsigned int absolute(unsigned int a);
-template float absolute(float a);
-template double absolute(double a); 
-
+template void swapPointers_B(int** a, int** b);
+template void swapPointers_B(unsigned int** a, unsigned int** b);
+template void swapPointers_B(float** a, float** b);
+template void swapPointers_B(double** a, double** b);
 
 /// ***********************************************************
 /// ***********************************************************
@@ -367,100 +259,19 @@ template double absolute(double a);
  * Documentation
  */
 template <typename T>
-__global__ void generateSamples_distributive
+__global__ void generateSamples_distributive_B
 					(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local) {
 	
 	int index = blockIdx.x * blockDim.x + threadIdx.x;
 	int offset = length_local / sampleSize_local;
 	
 	if (index < sampleSize_local)
-		d_sampleVector[index] = d_vector[index * offset];		
-}
-
-/*
- * This function generate new buckets offset and slopes by giving the new pivots and number of elements in
- * that buckets
- *
- * pivotsLeft & pivotsRight:  the bounds of elements for each bucket
- * kthnumBuckets:  array to store bucket offset.
- */
-template <typename T>
-__global__ void generateBucketsandSlopes_distributive 
-					(T * pivotsLeft, T * pivotsRight, double * slopes,
-                     unsigned int * uniqueBucketsCounts, int numUniqueBuckets,
-                     unsigned int * kthnumBuckets, int length, int offset, int numBuckets) {
-
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    // Assign bucket number and slope to first to the second to last active buckets
-    if (index < numUniqueBuckets - 1) {
-        for (int i = index; i < numUniqueBuckets - 1; i += offset) {
-
-            // assign bucket number
-            kthnumBuckets[i] = max(uniqueBucketsCounts[i] * numBuckets / length, 2);
-
-            // assign slope
-            slopes[i] = (double) kthnumBuckets[i] / (double) (pivotsRight[i] - pivotsLeft[i]);
-
-            if (isinf(slopes[i]))
-                slopes[i] = 0;
-        }
-    }
-
-    // Assign bucket number and slope to the last active buckets
-    if (index < 1) {
-        // exclusive cumulative sum to the kthnumbuckets for finding the correct number of buckets
-        // for the last active buckets
-        thrust::exclusive_scan(thrust::device, kthnumBuckets, 
-        					   kthnumBuckets + numUniqueBuckets, kthnumBuckets, 0);
-
-
-        // assign slope
-        slopes[numUniqueBuckets - 1] = (numBuckets - kthnumBuckets[numUniqueBuckets - 1])
-                                       / (double) (pivotsRight[numUniqueBuckets - 1] - 
-                                       			   pivotsLeft[numUniqueBuckets - 1]);
-
-        if (isinf(slopes[numUniqueBuckets - 1]))
-            slopes[numUniqueBuckets - 1] = 0;
-    }
-    
-    __syncthreads();
-    
-    // if we have extreme cases
-    if (kthnumBuckets[numUniqueBuckets - 1] >= numBuckets) {
-    	if (index < numUniqueBuckets - 1) {
-	        for (int i = index; i < numUniqueBuckets - 1; i += offset) {
-
-	            // assign bucket number
-	            kthnumBuckets[i] = max(uniqueBucketsCounts[i] * numBuckets / length, 1);
-
-	            // assign slope
-	            slopes[i] = (double) kthnumBuckets[i] / (double) (pivotsRight[i] - pivotsLeft[i]);
-
-	            if (isinf(slopes[i]))
-	                slopes[i] = 0;
-	        }
-	    }
-
-	    // Assign bucket number and slope to the last active buckets
-	    if (index < 1) {
-	        // exclusive cumulative sum to the kthnumbuckets for finding the correct number of buckets
-	        // for the last active buckets
-	        thrust::exclusive_scan(thrust::device, kthnumBuckets, kthnumBuckets + numUniqueBuckets, kthnumBuckets, 0);
-
-
-	        // assign slope
-	        slopes[numUniqueBuckets - 1] = (numBuckets - kthnumBuckets[numUniqueBuckets - 1])
-	                                       / (double) (pivotsRight[numUniqueBuckets - 1] - pivotsLeft[numUniqueBuckets - 1]);
-
-	        if (isinf(slopes[numUniqueBuckets - 1]))
-	            slopes[numUniqueBuckets - 1] = 0;
-	    }
-    }
+		d_sampleVector[index] = d_vector[index * offset];	
 }
 
 
 
+		
 /* This function assigns elements to buckets based on the pivots and slopes determined
    by a randomized sampling of the elements in the vector. At the same time, this
    function keeps track of count.
@@ -469,7 +280,7 @@ __global__ void generateBucketsandSlopes_distributive
    d_bucketCount : number of element that falls into the indexed buckets within the block
 */
 template <typename T>
-__global__ void assignSmartBucket_distributive
+__global__ void assignSmartBucket_distributive_B
 				(T * d_vector, int length, unsigned int * d_elementToBucket,
                  double * slopes, T * pivotsLeft, T * pivotsRight,
                  unsigned int * kthNumBuckets, unsigned int * d_bucketCount,
@@ -612,15 +423,14 @@ __global__ void assignSmartBucket_distributive
         */
 
 } // closes the kernel
-
-
-
+		
+		
 /* This function cumulatively sums the count of every block for a given bucket s.t. the
    last block index holds the total number of elements falling into that bucket all over the
    array.
    updates d_bucketCount
 */
-__global__ void sumCounts(unsigned int * d_bucketCount, const int numBuckets
+__global__ void sumCounts_B(unsigned int * d_bucketCount, const int numBuckets
         , const int numBlocks) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -629,12 +439,11 @@ __global__ void sumCounts(unsigned int * d_bucketCount, const int numBuckets
 }
 
 
-
 /* This function reindexes the buckets counts for every block according to the
    accumulated d_reindexCounter counter for the reduced vector.
    updates d_bucketCount
 */
-__global__ void reindexCounts(unsigned int * d_bucketCount, int numBuckets, int numBlocks,
+__global__ void reindexCounts_B(unsigned int * d_bucketCount, int numBuckets, int numBlocks,
                               unsigned int * d_reindexCounter, unsigned int * d_uniqueBuckets,
                               const int numUniqueBuckets) {
     int threadIndex = blockIdx.x * blockDim.x + threadIdx.x;
@@ -655,7 +464,7 @@ __global__ void reindexCounts(unsigned int * d_bucketCount, int numBuckets, int 
    newArray - reduced size vector containing the essential elements
 */
 template <typename T>
-__global__ void copyElements_distributive 
+__global__ void copyElements_distributive_B 
 					(T * d_vector, T * d_newvector, int lengthOld, 
 					 unsigned int * elementToBuckets, unsigned int * uniqueBuckets, 
 					 int numUniqueBuckets, unsigned int * d_bucketCount, 
@@ -716,154 +525,52 @@ __global__ void copyElements_distributive
     // needs to swap d_vector with d_newvector
 }
 
-
-
-/* This function copies the elements of buckets that contain kVals into a newly allocated
-   reduced vector space.
-   newArray - reduced size vector containing the essential elements
+/* This function speeds up the copying process the requested kVals by clustering them
+ together.
 */
 template <typename T>
-__global__ void updatePivots_distributive
-					(T * d_pivotsLeft, T * d_newPivotsLeft, T * d_newPivotsRight,
-                     double * slopes, unsigned int * kthnumBuckets, unsigned int * uniqueBuckets,
-                     int numUniqueBuckets, int numUniqueBucketsOld, int offset) {
+__global__ void copyValuesInChunk_B (T * outputVector, T * inputVector, uint * kList
+                                 , uint * kIndices, int kListCount) {
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	int loop = kListCount / MAX_THREADS_PER_BLOCK;
 
-    int index = blockIdx.x * blockDim.x + threadIdx.x;
-
-    if (index < numUniqueBuckets) {
-        for (int i = index; i < numUniqueBuckets; i += offset) {
-            unsigned int bucket = uniqueBuckets[i];
-            int minBucketIndex = 0;
-            int maxBucketIndex = numUniqueBucketsOld;
-            int midBucketIndex;
-
-
-            // perform binary search to find kthNumBucket that is greatest s.t. lower than or equal to the bucket
-            for (int j = 1; j < numUniqueBucketsOld; j *= 2) {
-                midBucketIndex = (maxBucketIndex + minBucketIndex) / 2;
-                if (bucket >= kthnumBuckets[midBucketIndex])
-                    minBucketIndex = midBucketIndex;
-                else
-                    maxBucketIndex = midBucketIndex;
-            }
-
-
-            long double invslope=0.0;
-            if (slopes[minBucketIndex] == (double)0) {
-                d_newPivotsLeft[i] = d_pivotsLeft[minBucketIndex];
-                d_newPivotsRight[i] = d_pivotsLeft[minBucketIndex];
-            }
-            else {
-                invslope = 1/((long double) slopes[minBucketIndex]);
-                d_newPivotsLeft[i] = (T)((long double) d_pivotsLeft[minBucketIndex] +
-                                        (((long double) (bucket - kthnumBuckets[minBucketIndex])) * invslope)); // / slopes[bucketIndex]));
-                d_newPivotsRight[i] = (T) ((long double)d_pivotsLeft[minBucketIndex] +
-                                         (((long double) (bucket - kthnumBuckets[minBucketIndex] + 1) * invslope)));
-//                                               slopes[bucketIndex]));
-            }
-        }
-    }
-
-    // needs to swap pointers of pivotsLeft with newPivotsLeft, pivotsRight with newPivotsRight
+	for (int i = 0; i <= loop; i++) {      
+	  if (idx < kListCount)
+		*(outputVector + *(kIndices + idx)) = *(inputVector + *(kList + idx) - 1);
+	}
 }
 
 
-
-/*
- * This function finds the actual element for the kth orderstats by giving the list of buckets
- */
-template <typename T>
-__global__ void updateOutput_distributive 
-						(T * d_vector, unsigned int * d_elementToBucket, int lengthOld, 
-						 T * d_tempOutput, unsigned int * d_tempKorderBucket, 
-						 int tempKorderLength, int offset){
-
-    int index = blockDim.x * blockIdx.x + threadIdx.x;
-    
-    /*
-    if (index < tempKorderLength) {
-    	for (int i = index; i < tempKorderLength; i++) {
-    		d_tempOutput[i] = 0;
-    	}
-    }
-    */
-
-    if (index < lengthOld) {
-        for (int i = index; i < lengthOld; i += offset) {
-            unsigned int bucket = d_elementToBucket[i];
-
-            for (int j = 0; j < tempKorderLength; j++) {
-                if (d_tempKorderBucket[j] == bucket)
-                    d_tempOutput[j] = d_vector[i];
-            }
-        }
-    }
-}
-                                            
-                                            
-                                            
-                                            
 /// ***********************************************************
 /// ***********************************************************
 /// **** HELPER GPU FUNCTIONS LIBRARIES
 /// ***********************************************************
 /// ***********************************************************
 template <typename T>
-void generateSamples_distributive_CALL
+void generateSamples_distributive_CALL_B
 			(T* d_vector, T* d_sampleVector, int length_local, int sampleSize_local) {
-	 generateSamples_distributive<<<8, 1024>>> 
+	 generateSamples_distributive_B<<<8, 1024>>> 
 	 		(d_vector, d_sampleVector, length_local, sampleSize_local);		
 			}
-template void generateSamples_distributive_CALL
+template void generateSamples_distributive_CALL_B
 			(int* d_vector, int* d_sampleVector, 
 			 int length_local, int sampleSize_local);
-template void generateSamples_distributive_CALL
+template void generateSamples_distributive_CALL_B
 			(unsigned int* d_vector, unsigned int* d_sampleVector, 
 			 int length_local, int sampleSize_local);
-template void generateSamples_distributive_CALL
+template void generateSamples_distributive_CALL_B
 			(float* d_vector, float* d_sampleVector, 
 			 int length_local, int sampleSize_local);
-template void generateSamples_distributive_CALL
+template void generateSamples_distributive_CALL_B
 			(double* d_vector, double* d_sampleVector, 
 			 int length_local, int sampleSize_local);
-
-
+			 
+			 
+			 
+			 
+			 
 template <typename T>
-void generateBucketsandSlopes_distributive_CALL
-			(T * pivotsLeft, T * pivotsRight, double * slopes,
-             unsigned int * uniqueBucketsCounts, int numUniqueBuckets,
-             unsigned int * kthnumBuckets, int length, int offset, 
-             int numBuckets, int threadsPerBlock) {
-	generateBucketsandSlopes_distributive
-		<<<(int) ceil((float)numUniqueBuckets/threadsPerBlock), threadsPerBlock>>>
-		        (pivotsLeft, pivotsRight, slopes, uniqueBucketsCounts,
-		         numUniqueBuckets, kthnumBuckets, length, offset, numBuckets);
-}
-
-template void generateBucketsandSlopes_distributive_CALL
-			(int * pivotsLeft, int * pivotsRight, double * slopes,
-             unsigned int * uniqueBucketsCounts, int numUniqueBuckets,
-             unsigned int * kthnumBuckets, int length, int offset, 
-             int numBuckets, int threadsPerBlock);
-template void generateBucketsandSlopes_distributive_CALL
-			(unsigned int * pivotsLeft, unsigned int * pivotsRight, 
-			 double * slopes, unsigned int * uniqueBucketsCounts, 
-			 int numUniqueBuckets, unsigned int * kthnumBuckets, 
-			 int length, int offset, int numBuckets, int threadsPerBlock);
-template void generateBucketsandSlopes_distributive_CALL
-			(float * pivotsLeft, float * pivotsRight, double * slopes,
-             unsigned int * uniqueBucketsCounts, int numUniqueBuckets,
-             unsigned int * kthnumBuckets, int length, int offset, 
-             int numBuckets, int threadsPerBlock);
-template void generateBucketsandSlopes_distributive_CALL
-			(double * pivotsLeft, double * pivotsRight, double * slopes,
-             unsigned int * uniqueBucketsCounts, int numUniqueBuckets,
-             unsigned int * kthnumBuckets, int length, int offset, 
-             int numBuckets, int threadsPerBlock);
-
-
-template <typename T>
-void assignSmartBucket_distributive_CALL
+void assignSmartBucket_distributive_CALL_B
 			(T * d_vector, int length, unsigned int * d_elementToBucket,
              double * slopes, T * pivotsLeft, T * pivotsRight,
              unsigned int * kthNumBuckets, unsigned int * d_bucketCount,
@@ -875,87 +582,85 @@ void assignSmartBucket_distributive_CALL
                            numUniqueBuckets * sizeof(unsigned int) + 
                            numBuckets * sizeof(unsigned int);
                                          
-    assignSmartBucket_distributive<T><<<numBlocks, threadsPerBlock, sharedMemorySize>>>
+    assignSmartBucket_distributive_B<T><<<numBlocks, threadsPerBlock, sharedMemorySize>>>
         		(d_vector, length, d_elementToBucket, slopes, pivotsLeft, pivotsRight,
                  kthNumBuckets, d_bucketCount, numUniqueBuckets, numBuckets, offset);                                
 }
 
-template void assignSmartBucket_distributive_CALL
+template void assignSmartBucket_distributive_CALL_B
 			(int * d_vector, int length, unsigned int * d_elementToBucket,
 		     double * slopes, int * pivotsLeft, int * pivotsRight,
 		     unsigned int * kthNumBuckets, unsigned int * d_bucketCount,
 		     int numUniqueBuckets, int numBuckets, int offset,
 		     int numBlocks, int threadsPerBlock);
-template void assignSmartBucket_distributive_CALL
+template void assignSmartBucket_distributive_CALL_B
 			(unsigned * d_vector, int length, unsigned int * d_elementToBucket,
         	 double * slopes, unsigned int * pivotsLeft, unsigned int * pivotsRight,
         	 unsigned int * kthNumBuckets, unsigned int * d_bucketCount,
         	 int numUniqueBuckets, int numBuckets, int offset,
           	 int numBlocks, int threadsPerBlock);
-template void assignSmartBucket_distributive_CALL
+template void assignSmartBucket_distributive_CALL_B
 			(float * d_vector, int length, unsigned int * d_elementToBucket,
         	 double * slopes, float * pivotsLeft, float * pivotsRight,
         	 unsigned int * kthNumBuckets, unsigned int * d_bucketCount,
         	 int numUniqueBuckets, int numBuckets, int offset,
         	 int numBlocks, int threadsPerBlock);
-template void assignSmartBucket_distributive_CALL
+template void assignSmartBucket_distributive_CALL_B
 			(double * d_vector, int length, unsigned int * d_elementToBucket,
         	 double * slopes, double * pivotsLeft, double * pivotsRight,
         	 unsigned int * kthNumBuckets, unsigned int * d_bucketCount,
         	 int numUniqueBuckets, int numBuckets, int offset,
         	 int numBlocks, int threadsPerBlock);
-                                            	  
-
-
-void sumCounts_CALL(unsigned int * d_bucketCount, const int numBuckets, 
+			 
+			 
+void sumCounts_CALL_B(unsigned int * d_bucketCount, const int numBuckets, 
 					const int numBlocks, int threadsPerBlock) {
-	sumCounts<<<numBuckets/threadsPerBlock, threadsPerBlock>>>
+	sumCounts_B<<<numBuckets/threadsPerBlock, threadsPerBlock>>>
 		(d_bucketCount, numBuckets, numBlocks);
 }
-
-
-
-void reindexCounts_CALL(unsigned int * d_bucketCount, int numBuckets, int numBlocks,
+			 
+void reindexCounts_CALL_B(unsigned int * d_bucketCount, int numBuckets, int numBlocks,
                         unsigned int * d_reindexCounter, unsigned int * d_uniqueBuckets,
                         const int numUniqueBuckets, int threadsPerBlock) {
-	reindexCounts<<<(int) ceil((float)numUniqueBuckets/threadsPerBlock), threadsPerBlock>>>
+	reindexCounts_B<<<(int) ceil((float)numUniqueBuckets/threadsPerBlock), threadsPerBlock>>>
           (d_bucketCount, numBuckets, numBlocks, d_reindexCounter, d_uniqueBuckets, 
            numUniqueBuckets);  
                         
-}
-
+}		 
+			 
+			 
 template <typename T>
-void copyElements_distributive_CALL
+void copyElements_distributive_CALL_B
 			(T * d_vector, T * d_newvector, int lengthOld, 
 			 unsigned int * elementToBuckets, unsigned int * uniqueBuckets, 
 			 int numUniqueBuckets, unsigned int * d_bucketCount, 
 			 int numBuckets, unsigned int offset, int threadsPerBlock,
 			 int numBlocks) {
-	copyElements_distributive<T><<<numBlocks, threadsPerBlock, 
+	copyElements_distributive_B<T><<<numBlocks, threadsPerBlock, 
 								   numUniqueBuckets * sizeof(unsigned int)>>>
 			(d_vector, d_newvector, lengthOld, elementToBuckets, uniqueBuckets, 
 			 numUniqueBuckets, d_bucketCount, numBuckets, offset);
 }
 
-template void copyElements_distributive_CALL
+template void copyElements_distributive_CALL_B
 			(int * d_vector, int * d_newvector, int lengthOld, 
 			 unsigned int * elementToBuckets, unsigned int * uniqueBuckets, 
 			 int numUniqueBuckets, unsigned int * d_bucketCount, 
 			 int numBuckets, unsigned int offset, int threadsPerBlock,
 			 int numBlocks);
-template void copyElements_distributive_CALL
+template void copyElements_distributive_CALL_B
 			(unsigned int * d_vector, unsigned int * d_newvector, int lengthOld, 
 			 unsigned int * elementToBuckets, unsigned int * uniqueBuckets, 
 			 int numUniqueBuckets, unsigned int * d_bucketCount, 
 			 int numBuckets, unsigned int offset, int threadsPerBlock,
 			 int numBlocks);
-template void copyElements_distributive_CALL
+template void copyElements_distributive_CALL_B
 			(float * d_vector, float * d_newvector, int lengthOld, 
 			 unsigned int * elementToBuckets, unsigned int * uniqueBuckets, 
 			 int numUniqueBuckets, unsigned int * d_bucketCount, 
 			 int numBuckets, unsigned int offset, int threadsPerBlock,
 			 int numBlocks);
-template void copyElements_distributive_CALL
+template void copyElements_distributive_CALL_B
 			(double * d_vector, double * d_newvector, int lengthOld, 
 			 unsigned int * elementToBuckets, unsigned int * uniqueBuckets, 
 			 int numUniqueBuckets, unsigned int * d_bucketCount, 
@@ -963,71 +668,41 @@ template void copyElements_distributive_CALL
 			 int numBlocks);
 			 
 			 
-			 
 template <typename T>
-void updatePivots_distributive_CALL
-			(T * d_pivotsLeft, T * d_newPivotsLeft, T * d_newPivotsRight,
-             double * slopes, unsigned int * kthnumBuckets, unsigned int * uniqueBuckets,
-             int numUniqueBuckets, int numUniqueBucketsOld, int offset, 
-             int threadsPerBlock) {
-	updatePivots_distributive<T>
-		<<<(int)ceil((float)numUniqueBuckets/threadsPerBlock), threadsPerBlock>>>
-				(d_pivotsLeft, d_newPivotsLeft, d_newPivotsRight,
-                 slopes, kthnumBuckets, uniqueBuckets,
-                 numUniqueBuckets, numUniqueBucketsOld, offset); 
+void copyValuesInChunk_CALL_B(T * outputVector, T * inputVector, uint * kList, 
+                            uint * kIndices, int kListCount, int numBlocks, 
+                            int threadsPerBlock) {
+	copyValuesInChunk_B<T><<<numBlocks, threadsPerBlock>>>
+			(outputVector, inputVector, kList, kIndices, kListCount);
+			             
 }
 
-template void updatePivots_distributive_CALL
-			(int * d_pivotsLeft, int * d_newPivotsLeft, int * d_newPivotsRight,
-             double * slopes, unsigned int * kthnumBuckets, unsigned int * uniqueBuckets,
-             int numUniqueBuckets, int numUniqueBucketsOld, int offset, 
-             int threadsPerBlocks);
-template void updatePivots_distributive_CALL
-			(unsigned int * d_pivotsLeft, unsigned int * d_newPivotsLeft, 
-			 unsigned int * d_newPivotsRight, double * slopes, unsigned int * kthnumBuckets, 
-			 unsigned int * uniqueBuckets, int numUniqueBuckets, int numUniqueBucketsOld, 
-			 int offset, int threadsPerBlocks);
-template void updatePivots_distributive_CALL
-			(float * d_pivotsLeft, float * d_newPivotsLeft, float * d_newPivotsRight,
-             double * slopes, unsigned int * kthnumBuckets, unsigned int * uniqueBuckets,
-             int numUniqueBuckets, int numUniqueBucketsOld, int offset, 
-             int threadsPerBlocks);
-template void updatePivots_distributive_CALL
-			(double * d_pivotsLeft, double * d_newPivotsLeft, double * d_newPivotsRight,
-             double * slopes, unsigned int * kthnumBuckets, unsigned int * uniqueBuckets,
-             int numUniqueBuckets, int numUniqueBucketsOld, int offset, 
-             int threadsPerBlocks);
-			
-			
+template void copyValuesInChunk_CALL_B
+		(int* outputVector, int* inputVector, uint * kList, 
+         uint * kIndices, int kListCount, int numBlocks, 
+         int threadsPerBlock);
+template void copyValuesInChunk_CALL_B
+		(unsigned int* outputVector, unsigned int* inputVector, uint * kList, 
+         uint * kIndices, int kListCount, int numBlocks, 
+         int threadsPerBlock);
+template void copyValuesInChunk_CALL_B
+		(float* outputVector, float* inputVector, uint * kList, 
+         uint * kIndices, int kListCount, int numBlocks, 
+         int threadsPerBlock);
+template void copyValuesInChunk_CALL_B
+		(double* outputVector, double* inputVector, uint * kList, 
+         uint * kIndices, int kListCount, int numBlocks, 
+         int threadsPerBlock);
 
-template <typename T>
-void updateOutput_distributive_CALL
-			(T * d_vector, unsigned int * d_elementToBucket, int lengthOld, 
-			 T * d_tempOutput, unsigned int * d_tempKorderBucket, 
-			 int tempKorderLength, int offset, int threadsPerBlock) {
-	updateOutput_distributive<<<(int)ceil((float)lengthOld/threadsPerBlock), threadsPerBlock>>>
-			 (d_vector, d_elementToBucket, lengthOld, d_tempOutput, d_tempKorderBucket, 
-			  tempKorderLength, offset);
-}
+
+
+
+
+		 
 			 
-template void updateOutput_distributive_CALL
-				(int * d_vector, unsigned int * d_elementToBucket, int lengthOld, 
-				 int * d_tempOutput, unsigned int * d_tempKorderBucket, 
-				 int tempKorderLength, int offset, int threadsPerBlock);
-template void updateOutput_distributive_CALL
-				(unsigned int * d_vector, unsigned int * d_elementToBucket, int lengthOld, 
-				 unsigned int * d_tempOutput, unsigned int * d_tempKorderBucket, 
-				 int tempKorderLength, int offset, int threadsPerBlock);
-template void updateOutput_distributive_CALL
-				(float * d_vector, unsigned int * d_elementToBucket, int lengthOld, 
-				 float * d_tempOutput, unsigned int * d_tempKorderBucket, 
-				 int tempKorderLength, int offset, int threadsPerBlock);
-template void updateOutput_distributive_CALL
-				(double * d_vector, unsigned int * d_elementToBucket, int lengthOld, 
-				 double * d_tempOutput, unsigned int * d_tempKorderBucket, 
-				 int tempKorderLength, int offset, int threadsPerBlock);
-
-
+			 
+			 
+			 
 /// ***********************************************************
 /// ***********************************************************
 /// **** GENERATE KD PIVOTS
@@ -1037,7 +712,7 @@ template void updateOutput_distributive_CALL
 /* Hash function using Monte Carlo method
  */
 __host__ __device__
-unsigned int myhash(unsigned int a) {
+unsigned int myhash_B(unsigned int a) {
     a = (a+0x7ed55d16) + (a<<12);
     a = (a^0xc761c23c) ^ (a>>19);
     a = (a+0x165667b1) + (a<<5);
@@ -1051,17 +726,17 @@ unsigned int myhash(unsigned int a) {
 
 /* RandomNumberFunctor
  */
-struct RandomNumberFunctor :
+struct RandomNumberFunctor_B :
         public thrust::unary_function<unsigned int, float> {
     unsigned int mainSeed;
 
-    RandomNumberFunctor(unsigned int _mainSeed) :
+    RandomNumberFunctor_B(unsigned int _mainSeed) :
             mainSeed(_mainSeed) {}
 
     __host__ __device__
     float operator()(unsigned int threadIdx)
     {
-        unsigned int seed = myhash(threadIdx) * mainSeed;
+        unsigned int seed = myhash_B(threadIdx) * mainSeed;
 
         thrust::default_random_engine rng(seed);
         rng.discard(threadIdx);
@@ -1076,7 +751,7 @@ struct RandomNumberFunctor :
 /* This function creates a random vector of 1024 elements in the range [0 1]
  */
 template <typename T>
-void createRandomVector(T * d_vec, int size) {
+void createRandomVector_B(T * d_vec, int size) {
     timeval t1;
     unsigned int seed;
 
@@ -1087,7 +762,7 @@ void createRandomVector(T * d_vec, int size) {
     thrust::device_ptr<T> d_ptr(d_vec);
     thrust::transform (thrust::counting_iterator<unsigned int>(0),
                        thrust::counting_iterator<unsigned int>(size),
-                       d_ptr, RandomNumberFunctor(seed));
+                       d_ptr, RandomNumberFunctor_B(seed));
 }
 
 
@@ -1096,18 +771,18 @@ void createRandomVector(T * d_vec, int size) {
    grabs the corresponding elements.
 */
 template <typename T>
-__global__ void enlargeIndexAndGetElements (T * in, T * list, int size) {
+__global__ void enlargeIndexAndGetElements_B (T * in, T * list, int size) {
     *(in + blockIdx.x*blockDim.x + threadIdx.x) =
             *(list + ((int) (*(in + blockIdx.x * blockDim.x + threadIdx.x) * size)));
 }
 
-__global__ void enlargeIndexAndGetElements (float * in, int * out, int * list, int size) {
+__global__ void enlargeIndexAndGetElements_B (float * in, int * out, int * list, int size) {
     *(out + blockIdx.x * blockDim.x + threadIdx.x) =
             (int) *(list + ((int) (*(in + blockIdx.x * blockDim.x + threadIdx.x) * size)));
 }
 
 
-__global__ void enlargeIndexAndGetElements (float * in, unsigned int * out, unsigned int * list, int size) {
+__global__ void enlargeIndexAndGetElements_B (float * in, unsigned int * out, unsigned int * list, int size) {
     *(out + blockIdx.x * blockDim.x + threadIdx.x) =
             (unsigned int) *(list + ((int) (*(in + blockIdx.x * blockDim.x + threadIdx.x) * size)));
 }
@@ -1120,7 +795,7 @@ __global__ void enlargeIndexAndGetElements (float * in, unsigned int * out, unsi
    slopes - array of slopes
 */
 template <typename T>
-void generatePivots (int * pivots, double * slopes, int * d_list, int sizeOfVector
+void generatePivots_B (int * pivots, double * slopes, int * d_list, int sizeOfVector
         , int numPivots, int sizeOfSample, int totalSmallBuckets, int min, int max) {
 
     float * d_randomFloats;
@@ -1133,10 +808,10 @@ void generatePivots (int * pivots, double * slopes, int * d_list, int sizeOfVect
 
     d_randomInts = (int *) d_randomFloats;
 
-    createRandomVector (d_randomFloats, sizeOfSample);
+    createRandomVector_B (d_randomFloats, sizeOfSample);
 
     // converts randoms floats into elements from necessary indices
-    enlargeIndexAndGetElements<<<(sizeOfSample/MAX_THREADS_PER_BLOCK)
+    enlargeIndexAndGetElements_B<<<(sizeOfSample/MAX_THREADS_PER_BLOCK)
     , MAX_THREADS_PER_BLOCK>>>(d_randomFloats, d_randomInts, d_list,
                                sizeOfVector);
 
@@ -1174,7 +849,7 @@ void generatePivots (int * pivots, double * slopes, int * d_list, int sizeOfVect
     cudaFree(d_randomFloats);
 }
 
-template void generatePivots<int>(int * pivots, double * slopes, int * d_list, int sizeOfVector, 
+template void generatePivots_B<int>(int * pivots, double * slopes, int * d_list, int sizeOfVector, 
 							 int numPivots, int sizeOfSample, int totalSmallBuckets, int min, int max);
 
 
@@ -1185,7 +860,7 @@ template void generatePivots<int>(int * pivots, double * slopes, int * d_list, i
    slopes - array of slopes
 */
 template <typename T>
-void generatePivots (unsigned int * pivots, double * slopes, unsigned int * d_list, int sizeOfVector
+void generatePivots_B (unsigned int * pivots, double * slopes, unsigned int * d_list, int sizeOfVector
         , int numPivots, int sizeOfSample, int totalSmallBuckets, unsigned int min, unsigned int max) {
 
     float * d_randomFloats;
@@ -1198,10 +873,10 @@ void generatePivots (unsigned int * pivots, double * slopes, unsigned int * d_li
 
     d_randomInts = (unsigned int *) d_randomFloats;
 
-    createRandomVector (d_randomFloats, sizeOfSample);
+    createRandomVector_B (d_randomFloats, sizeOfSample);
 
     // converts randoms floats into elements from necessary indices
-    enlargeIndexAndGetElements<<<(sizeOfSample/MAX_THREADS_PER_BLOCK)
+    enlargeIndexAndGetElements_B<<<(sizeOfSample/MAX_THREADS_PER_BLOCK)
     , MAX_THREADS_PER_BLOCK>>>(d_randomFloats, d_randomInts, d_list,
                                sizeOfVector);
 
@@ -1239,11 +914,11 @@ void generatePivots (unsigned int * pivots, double * slopes, unsigned int * d_li
     cudaFree(d_randomFloats);
 }
 
-template void generatePivots<unsigned int>(unsigned int * pivots, double * slopes, unsigned int * d_list, int sizeOfVector, 
+template void generatePivots_B<unsigned int>(unsigned int * pivots, double * slopes, unsigned int * d_list, int sizeOfVector, 
         				     int numPivots, int sizeOfSample, int totalSmallBuckets, unsigned int min, unsigned int max);
 
 template <typename T>
-void generatePivots (T * pivots, double * slopes, T * d_list, int sizeOfVector
+void generatePivots_B (T * pivots, double * slopes, T * d_list, int sizeOfVector
         , int numPivots, int sizeOfSample, int totalSmallBuckets, T min, T max) {
     T * d_randoms;
     int endOffset = 22;
@@ -1252,10 +927,10 @@ void generatePivots (T * pivots, double * slopes, T * d_list, int sizeOfVector
 
     cudaMalloc (&d_randoms, sizeof (T) * sizeOfSample);
 
-    createRandomVector (d_randoms, sizeOfSample);
+    createRandomVector_B (d_randoms, sizeOfSample);
 
     // converts randoms floats into elements from necessary indices
-    enlargeIndexAndGetElements<<<(sizeOfSample/MAX_THREADS_PER_BLOCK)
+    enlargeIndexAndGetElements_B<<<(sizeOfSample/MAX_THREADS_PER_BLOCK)
     , MAX_THREADS_PER_BLOCK>>>(d_randoms, d_list, sizeOfVector);
 
     pivots[0] = min;
@@ -1288,10 +963,19 @@ void generatePivots (T * pivots, double * slopes, T * d_list, int sizeOfVector
 }
 
 
-template void generatePivots(float * pivots, double * slopes, float * d_list, int sizeOfVector, 
+template void generatePivots_B(float * pivots, double * slopes, float * d_list, int sizeOfVector, 
 							 int numPivots, int sizeOfSample, int totalSmallBuckets, float min, float max);
-template void generatePivots(double * pivots, double * slopes, double * d_list, int sizeOfVector, 
+template void generatePivots_B(double * pivots, double * slopes, double * d_list, int sizeOfVector, 
 							 int numPivots, int sizeOfSample, int totalSmallBuckets, double min, double max);
 							 
 							 
-							 
+						 
+			 
+			 
+			 
+			 
+			 
+			 
+			 
+			 
+

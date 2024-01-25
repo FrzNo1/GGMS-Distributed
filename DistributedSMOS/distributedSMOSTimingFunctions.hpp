@@ -19,15 +19,15 @@ results_t<T>* timeSortAndChooseMultiselect
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 	
 template<typename T>
-results_t<T>* timeBucketMultiSelect 
-	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
-	
-template<typename T>
 results_t<T>* timeIterativeSMOS 
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 	
 template<typename T>
 results_t<T>* timeDistributedSMOS 
+	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+	
+template<typename T>
+results_t<T>* timeDistributedBucketMultiselect 
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 
 

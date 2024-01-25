@@ -23,6 +23,7 @@
 #include "distributedSMOS.hpp"
 
 #define RANK_NUM 4
+#define CUTOFF 33554432
 #define PROBLEM_SIZE 100000
 #define NUM_K_SIZE 100
 			
@@ -499,6 +500,7 @@ namespace DistributedSMOS {
 			     		 MPI_STATUS_IGNORE);
 			}
 			
+			
 			// All slots send information to GPU
 			cudaMemcpy(d_slopes, slopes, (numPivots - 1) * sizeof(double), 
 					   cudaMemcpyHostToDevice);
@@ -508,10 +510,11 @@ namespace DistributedSMOS {
 					   cudaMemcpyHostToDevice);
 			cudaMemcpy(d_kthnumBuckets, kthnumBuckets, numUniqueBuckets * sizeof(unsigned int), 
 					   cudaMemcpyHostToDevice);
+			
 		}
 		
-		cudaDeviceSynchronize();
-		MPI_Barrier(MPI_COMM_WORLD);
+		// cudaDeviceSynchronize();
+		// MPI_Barrier(MPI_COMM_WORLD);
 			
 		
         /// ***********************************************************
@@ -585,7 +588,7 @@ namespace DistributedSMOS {
         	findKBuckets(h_bucketCount_Host, numBuckets, kVals, numKs, 
         				 kthBucketScanner, kthBuckets, numBlocks);
         				 
-        	updatekVals_distributive<T>(kVals, &numKs, output, kIndices, &length_host, 
+        	updatekVals_nonDistributive<T>(kVals, &numKs, output, kIndices, &length_host, 
         					&length_host_Old, h_bucketCount_Host, kthBuckets, kthBucketScanner,
                             reindexCounter, uniqueBuckets, uniqueBucketCounts, 
                             &numUniqueBuckets, &numUniqueBucketsOld, tempKorderBucket, 
@@ -607,18 +610,7 @@ namespace DistributedSMOS {
         	// test part
         	// printf("Rank 0, tempKorderLength: %d\n", tempKorderLength);
         	for (int i = 1; i < RANK_NUM; i++) {
-        		MPI_Send_CALL(&tempKorderLength, 1, i, 
-							 9, MPI_COMM_WORLD);
 				MPI_Send_CALL(&numKs, 1, i, 12, MPI_COMM_WORLD);
-        	}
-        	
-        	if (tempKorderLength > 0) {
-        		for (int i = 1; i < RANK_NUM; i++) {
-					MPI_Send_CALL(tempKorderBucket, tempKorderLength, i, 
-							 10, MPI_COMM_WORLD);
-					MPI_Send_CALL(tempKorderIndeces, tempKorderLength, i, 
-							 11, MPI_COMM_WORLD);
-				}
         	}
         }
         
@@ -626,70 +618,10 @@ namespace DistributedSMOS {
         // each slots receive information and perform updateOutput function
         if (true) {
         	if (rank != 0) {
-				MPI_Recv_CALL(&tempKorderLength, 1, 0, 9, MPI_COMM_WORLD,
-							 		 MPI_STATUS_IGNORE);
 				MPI_Recv_CALL(&numKs, 1, 0, 12, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 			}
+		}	
 			
-		    if (tempKorderLength > 0) {
-		    	if (rank != 0) {
-					MPI_Recv_CALL(tempKorderBucket, tempKorderLength, 0, 10, MPI_COMM_WORLD,
-					 		 MPI_STATUS_IGNORE);
-					MPI_Recv_CALL(tempKorderIndeces, tempKorderLength, 0, 11, MPI_COMM_WORLD,
-					 		 MPI_STATUS_IGNORE);
-		    	}
-		    	
-		    	cudaMemcpy(d_tempKorderBucket, tempKorderBucket, 
-		    			   tempKorderLength * sizeof(unsigned int), 
-		    			   cudaMemcpyHostToDevice);
-		    	cudaMemcpy(d_tempKorderIndeces, tempKorderIndeces, 
-		    			  tempKorderLength * sizeof(unsigned int), 
-		    			   cudaMemcpyHostToDevice);
-		    			   
-		    	cudaMemset(d_tempOutput, 0.0, tempKorderLength * sizeof(T));
-		    			   
-		    	updateOutput_distributive_CALL
-		    			(d_vector_local, d_elementToBucket, length_local_Old, d_tempOutput, 
-		    			 d_tempKorderBucket, tempKorderLength, offset, threadsPerBlock);
-		    	
-		    	cudaMemcpy(tempOutput, d_tempOutput, tempKorderLength * sizeof(T), 
-		    			   cudaMemcpyDeviceToHost);
-		    			   
-		    	cudaDeviceSynchronize();
-		    			   
-		    	// each slots send output being already found to the host
-		    	if (rank != 0) {
-		    		MPI_Send_CALL(tempOutput, tempKorderLength, 0, 13, MPI_COMM_WORLD);
-		    	}
-		    	
-		    	MPI_Barrier(MPI_COMM_WORLD);
-				cudaDeviceSynchronize();
-        	}
-        }
-        
-        
-		// the host summarize information and update the output
-        if (rank == 0) {
-        	if (tempKorderLength > 0) {
-        		// receive tempOutput from each slots
-        		for (int i = 1; i < RANK_NUM; i++) {
-        			MPI_Recv_CALL(tempOutput_Receive, tempKorderLength, i, 13, 
-        				 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-        			for (int j = 0; j < tempKorderLength; j++) {
-        				tempOutput[j] += tempOutput_Receive[j];
-        			}
-        		}
-        		
-        		// copy it to the output
-        		for (int i = 0; i < tempKorderLength; i++) {
-        			output[tempKorderIndeces[i]] = tempOutput[i];
-        		}
-        		
-        		
-        	}
-        }
-        
-        
         cudaDeviceSynchronize();
 		MPI_Barrier(MPI_COMM_WORLD);
       	
@@ -699,6 +631,11 @@ namespace DistributedSMOS {
 			whetherEnterLoop = false;
 		
 		int numLengthEqual = 0;
+		bool doNotUpdate = false;
+		if (length_local >= CUTOFF)
+			doNotUpdate = true;
+			
+		MPI_Barrier(MPI_COMM_WORLD);
 		
 		/// ***********************************************************
         /// **** STEP 5: Reduce
@@ -956,11 +893,21 @@ namespace DistributedSMOS {
 		    	findKBuckets(h_bucketCount_Host, numBuckets, kVals, numKs, 
 		    				 kthBucketScanner, kthBuckets, numBlocks);
 		    				 
-		    	updatekVals_distributive<T>(kVals, &numKs, output, kIndices, &length_host, 
+		    	if (l == 0 && doNotUpdate) {
+		    		updatekVals_nonDistributive<T>(kVals, &numKs, output, kIndices, &length_host, 
 		    					&length_host_Old, h_bucketCount_Host, kthBuckets, kthBucketScanner,
 		                        reindexCounter, uniqueBuckets, uniqueBucketCounts, 
 		                        &numUniqueBuckets, &numUniqueBucketsOld, tempKorderBucket, 
 		                        tempKorderIndeces, &tempKorderLength); 
+		    	
+		    	}
+		    	else {
+					updatekVals_distributive<T>(kVals, &numKs, output, kIndices, &length_host, 
+									&length_host_Old, h_bucketCount_Host, kthBuckets, kthBucketScanner,
+				                    reindexCounter, uniqueBuckets, uniqueBucketCounts, 
+				                    &numUniqueBuckets, &numUniqueBucketsOld, tempKorderBucket, 
+				                    tempKorderIndeces, &tempKorderLength); 
+		        }
 			  				 
 		    }
 		    
@@ -969,97 +916,122 @@ namespace DistributedSMOS {
 		    /// ***********************************************************
             /// **** Step 5.5.3: Find and update output
             /// ***********************************************************	
-		
-			// host send potential k-order statistics information to each slot
-		    if (rank == 0) {
-		    	// test part
-		    	// printf("Rank 0, tempKorderLength: %d\n", tempKorderLength);
-		    	for (int i = 1; i < RANK_NUM; i++) {
-		    		MPI_Send_CALL(&tempKorderLength, 1, i, 
-								 57, MPI_COMM_WORLD);
-					MPI_Send_CALL(&numKs, 1, i, 60, MPI_COMM_WORLD);
-					MPI_Send_CALL(&length_host, 1, i, 61, MPI_COMM_WORLD);
-					MPI_Send_CALL(&length_host_Old, 1, i, 62, MPI_COMM_WORLD);
-		    	}
-		    	
-		    	if (tempKorderLength > 0) {
-		    		for (int i = 1; i < RANK_NUM; i++) {
-						MPI_Send_CALL(tempKorderBucket, tempKorderLength, i, 
-								 58, MPI_COMM_WORLD);
-						MPI_Send_CALL(tempKorderIndeces, tempKorderLength, i, 
-								 59, MPI_COMM_WORLD);
-						
+            
+            if (l == 0 && doNotUpdate) {
+            	// host send potential k-order statistics information to each slot
+				if (rank == 0) {
+					// test part
+					// printf("Rank 0, tempKorderLength: %d\n", tempKorderLength);
+					for (int i = 1; i < RANK_NUM; i++) {
+						MPI_Send_CALL(&numKs, 1, i, 60, MPI_COMM_WORLD);
+						MPI_Send_CALL(&length_host, 1, i, 61, MPI_COMM_WORLD);
+						MPI_Send_CALL(&length_host_Old, 1, i, 62, MPI_COMM_WORLD);
 					}
-		    	}
-		    }
-		    
-		    cudaDeviceSynchronize();
-			MPI_Barrier(MPI_COMM_WORLD);
-		    
-		    
-		    // each slots receive information and perform updateOutput function
-		    if (true) {
-		    	if (rank != 0) {
-					MPI_Recv_CALL(&tempKorderLength, 1, 0, 57, MPI_COMM_WORLD,
-								 		 MPI_STATUS_IGNORE);
-					MPI_Recv_CALL(&numKs, 1, 0, 60, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-					MPI_Recv_CALL(&length_host, 1, 0, 61, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-					MPI_Recv_CALL(&length_host_Old, 1, 0, 62, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
 				}
 				
-				if (tempKorderLength > 0) {
+				
+				// each slots receive information and perform updateOutput function
+				if (true) {
 					if (rank != 0) {
-						MPI_Recv_CALL(tempKorderBucket, tempKorderLength, 0, 58, 
-								      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-						MPI_Recv_CALL(tempKorderIndeces, tempKorderLength, 0, 59, 
-									  MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+						MPI_Recv_CALL(&numKs, 1, 0, 60, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+						MPI_Recv_CALL(&length_host, 1, 0, 61, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+						MPI_Recv_CALL(&length_host_Old, 1, 0, 62, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					}
+				}	
+            	
+            }
+			else {
+				// host send potential k-order statistics information to each slot
+				if (rank == 0) {
+					// test part
+					// printf("Rank 0, tempKorderLength: %d\n", tempKorderLength);
+					for (int i = 1; i < RANK_NUM; i++) {
+						MPI_Send_CALL(&tempKorderLength, 1, i, 
+									 57, MPI_COMM_WORLD);
+						MPI_Send_CALL(&numKs, 1, i, 60, MPI_COMM_WORLD);
+						MPI_Send_CALL(&length_host, 1, i, 61, MPI_COMM_WORLD);
+						MPI_Send_CALL(&length_host_Old, 1, i, 62, MPI_COMM_WORLD);
 					}
 					
-					cudaMemcpy(d_tempKorderBucket, tempKorderBucket, 
-							   tempKorderLength * sizeof(unsigned int), 
-							   cudaMemcpyHostToDevice);
-					cudaMemcpy(d_tempKorderIndeces, tempKorderIndeces, 
-							   tempKorderLength * sizeof(unsigned int), 
-							   cudaMemcpyHostToDevice);
-							   
-					cudaMemset(d_tempOutput, 0.0, tempKorderLength * sizeof(T));
-							   
-					updateOutput_distributive_CALL
-							(d_vector_local, d_elementToBucket, length_local, d_tempOutput, 
-							 d_tempKorderBucket, tempKorderLength, offset, threadsPerBlock);
-					
-					cudaMemcpy(tempOutput, d_tempOutput, tempKorderLength * sizeof(T), 
-							   cudaMemcpyDeviceToHost);
-							   
-					cudaDeviceSynchronize();
-							   
-					// each slots send output being already found to the host
-					if (rank != 0) {
-						MPI_Send_CALL(tempOutput, tempKorderLength, 0, 63, MPI_COMM_WORLD);
+					if (tempKorderLength > 0) {
+						for (int i = 1; i < RANK_NUM; i++) {
+							MPI_Send_CALL(tempKorderBucket, tempKorderLength, i, 
+									 58, MPI_COMM_WORLD);
+							MPI_Send_CALL(tempKorderIndeces, tempKorderLength, i, 
+									 59, MPI_COMM_WORLD);
+							
+						}
 					}
-		    	}
-		    }
-		    
-		    cudaDeviceSynchronize();
-			MPI_Barrier(MPI_COMM_WORLD);
-		    
-			// the host summarize information and update the output
-		    if (rank == 0) {
-		    	if (tempKorderLength > 0) {
-		    		// receive tempOutput from each slots
-		    		for (int i = 1; i < RANK_NUM; i++) {
-		    			MPI_Recv_CALL(tempOutput_Receive, tempKorderLength, i, 63, 
-		    				 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
-		    			for (int j = 0; j < tempKorderLength; j++) {
-		    				tempOutput[j] += tempOutput_Receive[j];
-		    			}
-		    		}
-		    		
-		    		// copy it to the output
-		    		for (int i = 0; i < tempKorderLength; i++) {
-		    			output[tempKorderIndeces[i]] = tempOutput[i];
-		    		}
-		    	}
+				}
+				
+				cudaDeviceSynchronize();
+				MPI_Barrier(MPI_COMM_WORLD);
+				
+				
+				// each slots receive information and perform updateOutput function
+				if (true) {
+					if (rank != 0) {
+						MPI_Recv_CALL(&tempKorderLength, 1, 0, 57, MPI_COMM_WORLD,
+									 		 MPI_STATUS_IGNORE);
+						MPI_Recv_CALL(&numKs, 1, 0, 60, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+						MPI_Recv_CALL(&length_host, 1, 0, 61, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+						MPI_Recv_CALL(&length_host_Old, 1, 0, 62, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+					}
+					
+					if (tempKorderLength > 0) {
+						if (rank != 0) {
+							MPI_Recv_CALL(tempKorderBucket, tempKorderLength, 0, 58, 
+										  MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+							MPI_Recv_CALL(tempKorderIndeces, tempKorderLength, 0, 59, 
+										  MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+						}
+						
+						cudaMemcpy(d_tempKorderBucket, tempKorderBucket, 
+								   tempKorderLength * sizeof(unsigned int), 
+								   cudaMemcpyHostToDevice);
+						cudaMemcpy(d_tempKorderIndeces, tempKorderIndeces, 
+								   tempKorderLength * sizeof(unsigned int), 
+								   cudaMemcpyHostToDevice);
+								   
+						cudaMemset(d_tempOutput, 0.0, tempKorderLength * sizeof(T));
+								   
+						updateOutput_distributive_CALL
+								(d_vector_local, d_elementToBucket, length_local, d_tempOutput, 
+								 d_tempKorderBucket, tempKorderLength, offset, threadsPerBlock);
+						
+						cudaMemcpy(tempOutput, d_tempOutput, tempKorderLength * sizeof(T), 
+								   cudaMemcpyDeviceToHost);
+								   
+						cudaDeviceSynchronize();
+								   
+						// each slots send output being already found to the host
+						if (rank != 0) {
+							MPI_Send_CALL(tempOutput, tempKorderLength, 0, 63, MPI_COMM_WORLD);
+						}
+					}
+				}
+				
+				cudaDeviceSynchronize();
+				MPI_Barrier(MPI_COMM_WORLD);
+				
+				// the host summarize information and update the output
+				if (rank == 0) {
+					if (tempKorderLength > 0) {
+						// receive tempOutput from each slots
+						for (int i = 1; i < RANK_NUM; i++) {
+							MPI_Recv_CALL(tempOutput_Receive, tempKorderLength, i, 63, 
+								 MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+							for (int j = 0; j < tempKorderLength; j++) {
+								tempOutput[j] += tempOutput_Receive[j];
+							}
+						}
+						
+						// copy it to the output
+						for (int i = 0; i < tempKorderLength; i++) {
+							output[tempKorderIndeces[i]] = tempOutput[i];
+						}
+					}
+				}
 		    }
 		    
 		    cudaDeviceSynchronize();
@@ -1075,8 +1047,6 @@ namespace DistributedSMOS {
 			else {
             	numLengthEqual = 0;
             }
-			
-			
 		}
 		
 		
@@ -1202,7 +1172,8 @@ namespace DistributedSMOS {
         
         MPI_Barrier(MPI_COMM_WORLD);
 		cudaDeviceSynchronize();
-	
+		
+		
 		return 0;
 	}
 	
