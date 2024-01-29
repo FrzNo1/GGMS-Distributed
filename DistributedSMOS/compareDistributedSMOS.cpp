@@ -133,6 +133,8 @@ void MPI_Recv_CALL(T *buf, int count, int source, int tag,
 	102: host send startSignal to each rank in  compareMultiselectAlgorithms
 	103: host send stopSignal to each rank in  compareMultiselectAlgorithms
 	104: host send stopSignal to each rank in  compareMultiselectAlgorithms
+	
+	201, 202, 203: syncronized signal
 */
 
 
@@ -240,13 +242,23 @@ namespace CompareDistributedSMOS {
 
 
         for(i = 0; i < numTests; i++) {
+        
+        	if (rank == 0) {
+						for (int i = 1; i < RANK_NUM; i++) {
+							MPI_Send_CALL(&startSignal, 1, i, 202, MPI_COMM_WORLD);
+						}
+					}
+					
+			if (rank != 0) {
+				MPI_Recv_CALL(&startSignal, 1, 0, 202, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			}
 			
 			float currentWinningTime = INFINITY;
 			
 			//cudaDeviceReset();
             gettimeofday(&t1, NULL);
-            seed = t1.tv_usec * t1.tv_sec;
-            // seed = 1382741741538411;
+            // seed = t1.tv_usec * t1.tv_sec;
+            seed = 1602229222981002;
             
             /*
             // test part
@@ -396,6 +408,16 @@ namespace CompareDistributedSMOS {
             MPI_Barrier(MPI_COMM_WORLD);
             
             curandDestroyGenerator(generator);
+            
+            if (rank == 0) {
+				for (int i = 1; i < RANK_NUM; i++) {
+					MPI_Send_CALL(&startSignal, 1, i, 201, MPI_COMM_WORLD);
+				}
+			}
+					
+			if (rank != 0) {
+				MPI_Recv_CALL(&startSignal, 1, 0, 201, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			}
 
             if (rank == 0) {
                 for (x = 0; x < NUMBEROFALGORITHMS; x++)
@@ -404,8 +426,8 @@ namespace CompareDistributedSMOS {
 
                 // check for errors, and output information to recreate problem
                 uint flag = 0;
-                for (m = 1; m < NUMBEROFALGORITHMS; m++)
-                    if (algorithmsToTest[m])
+                for (m = 1; m < NUMBEROFALGORITHMS; m++) {
+                    if (algorithmsToTest[m]) {
                         for (j = 0; j < numKs; j++) {
                             if (resultsArray[m][i][j] != resultsArray[0][i][j]) {
                                 flag++;
@@ -431,6 +453,8 @@ namespace CompareDistributedSMOS {
                             
                             cudaDeviceSynchronize();
                         }
+                    }
+                }
 
                 fileCsv << flag << "\n";
             }
@@ -438,6 +462,16 @@ namespace CompareDistributedSMOS {
             MPI_Barrier(MPI_COMM_WORLD);
             cudaDeviceSynchronize();
         }
+        
+        if (rank == 0) {
+			for (int i = 1; i < RANK_NUM; i++) {
+				MPI_Send_CALL(&startSignal, 1, i, 203, MPI_COMM_WORLD);
+			}
+		}
+				
+		if (rank != 0) {
+			MPI_Recv_CALL(&startSignal, 1, 0, 203, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		}
         
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -493,7 +527,7 @@ namespace CompareDistributedSMOS {
     template<typename T>
     void runTests (uint generateType, char* fileName, uint startPower, uint stopPower
             , uint timesToTestEachK, uint kDistribution, uint startK, uint stopK, uint kJump, int rank) {
-        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 0, 1};
+        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 1, 1};
         uint size;
         uint i;
         uint arrayOfKs[stopK+1];
@@ -512,8 +546,8 @@ namespace CompareDistributedSMOS {
                 unsigned long long seed;
                 timeval t1;
                 gettimeofday(&t1, NULL);
-                seed = t1.tv_usec * t1.tv_sec;
-                // seed = 1266150597711659;
+                // seed = t1.tv_usec * t1.tv_sec;
+                seed = 754681493021411;
                 // test part
                 // printf("k generater seed: %llu\n", seed);
                 
@@ -655,7 +689,7 @@ int main (int argc, char *argv[]) {
     // get information from user
     if (rank == 0) {
     	
-    	
+    	/*
 		printf("Please enter the type of value you want to test:\n0-float\n1-double\n2-uint\n");
 		scanf("%u", &type);
 		printf("Please enter distribution type: ");
@@ -676,20 +710,20 @@ int main (int argc, char *argv[]) {
 		scanf("%u", &stopK);
 		printf("Please enter number of tests to run per K: ");
 		scanf("%u", &testCount);
-		
-		
-		/*
-		// test part
-		type = 2;
-		distributionType = 0;
-		kDistribution = 0;
-		startPower = 25;
-		stopPower = 25;
-		startK = 100;
-		jumpK = 50;
-		stopK = 500;
-		testCount = 4;
 		*/
+		
+		
+		// test part
+		type = 0;
+		distributionType = 1;
+		kDistribution = 0;
+		startPower = 15;
+		stopPower = 15;
+		startK = 350;
+		jumpK = 50;
+		stopK = 350;
+		testCount = 10;
+		
 		
     }
     

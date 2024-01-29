@@ -24,7 +24,7 @@ UUU="uint UNIFORM UNSIGNED INTEGERS k-dist:Uniform Ks"
 # run through them all, read the output, and save them to files with usable names
 Value=$FUU
 Name=FUU$Today
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" "Summary$Name.csv"
@@ -32,7 +32,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$FUR
 Name="FUR$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -40,7 +40,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$FUN
 Name="FUN$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -48,7 +48,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$FUS
 Name="FUS$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -56,7 +56,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$FUC
 Name="FUC$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -64,7 +64,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$FNU
 Name="FNU$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -72,7 +72,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$FHU
 Name="FHU$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -80,7 +80,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$FCU
 Name="FCU$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -88,7 +88,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$DUU
 Name="DUU$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -96,7 +96,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$DUR
 Name="DUR$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -104,7 +104,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$DUN
 Name="DUN$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -112,7 +112,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$DUS
 Name="DUS$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -120,7 +120,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$DUC
 Name="DUC$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -128,7 +128,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$DNU
 Name="DNU$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv
@@ -136,7 +136,7 @@ mv "Overview$Value.csv" Overview$Name.csv
 
 Value=$UUU
 Name="UUU$Today"
-./readMultiselectOutput "$Value"
+./readDistriSMOSoutput "$Value"
 mv "RatioSummary$Value.csv" RatioSummary$Name.csv
 mv "RatioOverview$Value.csv" RatioOverview$Name.csv
 mv "Summary$Value.csv" Summary$Name.csv

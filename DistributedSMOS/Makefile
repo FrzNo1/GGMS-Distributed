@@ -36,8 +36,8 @@ ITER = \
 compareIterativeSMOS
 
 DIST = \
-compareDistributedSMOS #\
-# runTestsDistributedSMOS
+compareDistributedSMOS \
+runTestsDistributedSMOS
 
 CompareIterativeSMOSSRC = \
 bucketMultiselect.cu iterativeSMOS.cu \

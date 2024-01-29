@@ -15,7 +15,7 @@
 #include <limits>
 #include <math.h>
 
-#define NUMBEROFMULTISELECTALGORITHMS 3
+#define NUMBEROFMULTISELECTALGORITHMS 4
 
 struct lineStruct{
   uint numAlgorithms;

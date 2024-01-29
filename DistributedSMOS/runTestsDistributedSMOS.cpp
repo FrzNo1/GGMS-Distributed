@@ -43,7 +43,7 @@
 
 //Include other files
 
-#include "bucketMultiselect.cuh"
+#include "distributedBucketMultiselect.hpp"
 #include "iterativeSMOS.cuh"
 #include "distributedSMOS.hpp"
 
@@ -56,7 +56,8 @@
 #define RANK_NUM 4
 #define NUMBEROFALGORITHMS 4
 char* namesOfMultiselectTimingFunctions[NUMBEROFALGORITHMS] =
-        {"Sort and Choose Multiselect",  "BucketMultiSelect", "IterativeSMOS", "DistributedSMOS"};
+        {"Sort and Choose Multiselect",  "DistributedBucketMultiSelect",
+         "DistributedIterativeSMOS", "DistributedSMOS"};
 
 #define NUMBEROFKDISTRIBUTIONS 5
 
@@ -132,6 +133,8 @@ void MPI_Recv_CALL(T *buf, int count, int source, int tag,
 	102: host send startSignal to each rank in  compareMultiselectAlgorithms
 	103: host send stopSignal to each rank in  compareMultiselectAlgorithms
 	104: host send stopSignal to each rank in  compareMultiselectAlgorithms
+	
+	201, 202, 203: syncronized signal
 */
 
 
@@ -190,7 +193,7 @@ namespace CompareDistributedSMOS {
         //these are the functions that can be called
         ptrToTimingFunction arrayOfTimingFunctions[NUMBEROFALGORITHMS] =
                 {&timeSortAndChooseMultiselect<T>,
-                 &timeBucketMultiSelect<T>, 
+                 &timeDistributedBucketMultiselect<T>, 
                  &timeIterativeSMOS<T>,
                  &timeDistributedSMOS<T>};
 
@@ -239,13 +242,28 @@ namespace CompareDistributedSMOS {
 
 
         for(i = 0; i < numTests; i++) {
+        
+        	if (rank == 0) {
+						for (int i = 1; i < RANK_NUM; i++) {
+							MPI_Send_CALL(&startSignal, 1, i, 202, MPI_COMM_WORLD);
+						}
+					}
+					
+			if (rank != 0) {
+				MPI_Recv_CALL(&startSignal, 1, 0, 202, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			}
 			
 			float currentWinningTime = INFINITY;
 			
 			//cudaDeviceReset();
             gettimeofday(&t1, NULL);
             seed = t1.tv_usec * t1.tv_sec;
-            // seed = 830359020905406;
+            // seed = 1602229222981002;
+            
+            /*
+            // test part
+            printf("vector generater seed: %llu\n", seed);
+            */
             
             curandCreateGenerator(&generator, CURAND_RNG_PSEUDO_DEFAULT);       // potentially not work
             curandSetPseudoRandomGeneratorSeed(generator, seed);
@@ -390,6 +408,16 @@ namespace CompareDistributedSMOS {
             MPI_Barrier(MPI_COMM_WORLD);
             
             curandDestroyGenerator(generator);
+            
+            if (rank == 0) {
+				for (int i = 1; i < RANK_NUM; i++) {
+					MPI_Send_CALL(&startSignal, 1, i, 201, MPI_COMM_WORLD);
+				}
+			}
+					
+			if (rank != 0) {
+				MPI_Recv_CALL(&startSignal, 1, 0, 201, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+			}
 
             if (rank == 0) {
                 for (x = 0; x < NUMBEROFALGORITHMS; x++)
@@ -398,8 +426,8 @@ namespace CompareDistributedSMOS {
 
                 // check for errors, and output information to recreate problem
                 uint flag = 0;
-                for (m = 1; m < NUMBEROFALGORITHMS; m++)
-                    if (algorithmsToTest[m])
+                for (m = 1; m < NUMBEROFALGORITHMS; m++) {
+                    if (algorithmsToTest[m]) {
                         for (j = 0; j < numKs; j++) {
                             if (resultsArray[m][i][j] != resultsArray[0][i][j]) {
                                 flag++;
@@ -425,6 +453,8 @@ namespace CompareDistributedSMOS {
                             
                             cudaDeviceSynchronize();
                         }
+                    }
+                }
 
                 fileCsv << flag << "\n";
             }
@@ -432,6 +462,16 @@ namespace CompareDistributedSMOS {
             MPI_Barrier(MPI_COMM_WORLD);
             cudaDeviceSynchronize();
         }
+        
+        if (rank == 0) {
+			for (int i = 1; i < RANK_NUM; i++) {
+				MPI_Send_CALL(&startSignal, 1, i, 203, MPI_COMM_WORLD);
+			}
+		}
+				
+		if (rank != 0) {
+			MPI_Recv_CALL(&startSignal, 1, 0, 203, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		}
         
         MPI_Barrier(MPI_COMM_WORLD);
 
@@ -507,7 +547,7 @@ namespace CompareDistributedSMOS {
                 timeval t1;
                 gettimeofday(&t1, NULL);
                 seed = t1.tv_usec * t1.tv_sec;
-                // seed = 272017605375852;
+                // seed = 754681493021411;
                 // test part
                 // printf("k generater seed: %llu\n", seed);
                 
@@ -613,6 +653,7 @@ namespace CompareDistributedSMOS {
     }
 
 }
+
 
 
 
