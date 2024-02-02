@@ -192,7 +192,7 @@ namespace CompareDistributedSMOS {
 
         //these are the functions that can be called
         ptrToTimingFunction arrayOfTimingFunctions[NUMBEROFALGORITHMS] =
-                {&timeSortAndChooseMultiselect<T>,
+                {&timeSortAndChooseMultiselect_original<T>,
                  &timeDistributedBucketMultiselect<T>, 
                  &timeIterativeSMOS<T>,
                  &timeDistributedSMOS<T>};
@@ -257,8 +257,8 @@ namespace CompareDistributedSMOS {
 			
 			//cudaDeviceReset();
             gettimeofday(&t1, NULL);
-            // seed = t1.tv_usec * t1.tv_sec;
-            seed = 1602229222981002;
+            seed = t1.tv_usec * t1.tv_sec;
+            // seed = 1602229222981002;
             
             /*
             // test part
@@ -546,8 +546,8 @@ namespace CompareDistributedSMOS {
                 unsigned long long seed;
                 timeval t1;
                 gettimeofday(&t1, NULL);
-                // seed = t1.tv_usec * t1.tv_sec;
-                seed = 754681493021411;
+                seed = t1.tv_usec * t1.tv_sec;
+                // seed = 754681493021411;
                 // test part
                 // printf("k generater seed: %llu\n", seed);
                 
@@ -689,7 +689,7 @@ int main (int argc, char *argv[]) {
     // get information from user
     if (rank == 0) {
     	
-    	/*
+    	
 		printf("Please enter the type of value you want to test:\n0-float\n1-double\n2-uint\n");
 		scanf("%u", &type);
 		printf("Please enter distribution type: ");
@@ -710,9 +710,9 @@ int main (int argc, char *argv[]) {
 		scanf("%u", &stopK);
 		printf("Please enter number of tests to run per K: ");
 		scanf("%u", &testCount);
-		*/
 		
 		
+		/*
 		// test part
 		type = 0;
 		distributionType = 1;
@@ -723,7 +723,7 @@ int main (int argc, char *argv[]) {
 		jumpK = 50;
 		stopK = 350;
 		testCount = 10;
-		
+		*/
 		
     }
     

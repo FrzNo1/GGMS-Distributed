@@ -1081,8 +1081,8 @@ void createRandomVector(T * d_vec, int size) {
     unsigned int seed;
 
     gettimeofday(&t1, NULL);
-    // seed = t1.tv_usec * t1.tv_sec;
-    seed = 1000000000;
+    seed = t1.tv_usec * t1.tv_sec;
+    // seed = 1000000000;
 
     thrust::device_ptr<T> d_ptr(d_vec);
     thrust::transform (thrust::counting_iterator<unsigned int>(0),

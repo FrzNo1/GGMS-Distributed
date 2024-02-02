@@ -70,6 +70,7 @@ mpic++ compareDistributedSMOS.o distributedSMOSTimingFunctions.o distributedSMOS
 mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./compareDistributedSMOS
 mpirun -np 4 -H zermelo,peano,kleene,rosser ./compareDistributedSMOS
 mpirun -np 4 -H delamain,harary,wilkinson,taussky ./compareDistributedSMOS
+mpirun -np 4 -hosts bellman,mccarthy,householder,zermelo ./compareDistributedSMOS
 
 -arch=sm_60
 
@@ -81,4 +82,4 @@ mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./distributedBucketMulti
 
 
 
-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
+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

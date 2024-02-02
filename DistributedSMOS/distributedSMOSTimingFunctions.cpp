@@ -195,6 +195,166 @@ void wrapupForTiming(cudaEvent_t &start, cudaEvent_t &stop, float time, results_
 //          THE SORT AND CHOOSE TIMING FUNCTION
 /////////////////////////////////////////////////////////////////
 
+// test part
+template<typename T>
+results_t<T>* timeSortAndChooseMultiselect_original
+	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank) {
+    T * d_vec;
+    results_t<T> * result;
+    float time;
+    cudaEvent_t start, stop;
+    int startSignal = 1;
+    int stopSignal = 0;
+
+    setupForTiming(start, stop, h_vec, &d_vec, &result, numElements, kCount);
+    
+    cudaThreadSynchronize();
+
+    cudaEventRecord(start, 0);
+    
+    // variables for host rank
+    T* h_vec_host;
+    T* d_vec_host;
+    T* h_vec_recv;
+    
+    if (rank == 0) {
+    	h_vec_host = (T*)malloc(sizeof(T) * numElements * RANK_NUM);
+    	cudaMalloc(&d_vec_host, sizeof(T) * numElements * RANK_NUM);
+    	h_vec_recv = (T*)malloc(sizeof(T) * numElements);
+    }
+    
+    // all rank copy vector to CPU and send it to host
+    if (true) {
+    	cudaMemcpy(d_vec, h_vec, numElements * sizeof(T), cudaMemcpyDeviceToHost);
+    }
+    
+    cudaThreadSynchronize();
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if (rank != 0) {
+    	MPI_Send_CALL(h_vec, numElements, 0, 1, MPI_COMM_WORLD);
+    }
+    
+    if (rank == 0) {
+    	for (int j = 0; j < numElements; j++) {
+    		h_vec_host[j] = h_vec[j];
+    	}
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Recv_CALL(h_vec_recv, numElements, i, 1, MPI_COMM_WORLD, 
+					     MPI_STATUS_IGNORE);
+			for (int j = 0; j < numElements; j++) {
+				h_vec_host[i * numElements + j] = h_vec_recv[j];
+			}
+    	}
+    	
+    	cudaMemcpy(d_vec_host, h_vec_host, numElements * sizeof(T) * RANK_NUM, 
+    			   cudaMemcpyHostToDevice);
+    	cudaThreadSynchronize();
+    }
+    
+    // use start signal to make sure each rank is at the same stage
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 2, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 2, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+    cudaThreadSynchronize();
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    
+    // sorting part
+	T * d_output;
+	uint * d_kList;
+
+    if (rank == 0) {
+		
+		sort_CALL<T>(d_vec_host, numElements * RANK_NUM);
+		
+		/*
+		// test part
+		printf("%d\n", kVals[341]);
+		printf("%d\n", numElements - kVals[341]);
+		*/
+		cudaThreadSynchronize();
+
+		/*
+		for (int i = 0; i < kCount; i++)
+		  cudaMemcpy(result->vals + i, d_vec + (numElements - kVals[i]), sizeof (T), cudaMemcpyDeviceToHost);
+		*/
+
+		T * d_output;
+		uint * d_kList;
+
+		cudaMalloc (&d_output, kCount * sizeof (T));
+		cudaMalloc (&d_kList, kCount * sizeof(uint));
+		cudaMemcpy (d_kList, kVals, kCount * sizeof (uint), cudaMemcpyHostToDevice);
+		
+		cudaThreadSynchronize();
+
+		int threads = MAX_THREADS_PER_BLOCK;
+		if (kCount < threads)
+		    threads = kCount;
+		int blocks = (int) ceil (kCount / (float) threads);
+		
+		cudaThreadSynchronize();
+
+		copyInChunk_CALL<T>(d_output, d_vec_host, d_kList, kCount, numElements * RANK_NUM, blocks, threads);
+		
+		cudaThreadSynchronize();
+		cudaMemcpy (result->vals, d_output, kCount * sizeof (T), cudaMemcpyDeviceToHost);
+		//••••••••••••••••••••••
+		//printf("first result: %u \n", result->vals);
+		
+		cudaThreadSynchronize();
+
+		cudaFree(d_output);
+		cudaFree(d_kList);
+    }
+    
+    // use stop signal to make sure each rank is at the same stage
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&stopSignal, 1, i, 3, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&stopSignal, 1, 0, 3, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&time, start, stop);
+    
+    cudaThreadSynchronize();
+
+    wrapupForTiming(start, stop, time, result);
+    
+    cudaFree(d_vec);
+    if (rank == 0) {
+    	free(h_vec_host);
+    	free(h_vec_recv);
+    	cudaFree(d_vec_host);
+    }
+    cudaThreadSynchronize();
+    
+    return result;
+}
+
+template results_t<int>* timeSortAndChooseMultiselect_original
+	(int * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<unsigned int>* timeSortAndChooseMultiselect_original
+	(unsigned int * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<float>* timeSortAndChooseMultiselect_original
+	(float * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<double>* timeSortAndChooseMultiselect_original
+	(double * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+
 template<typename T>
 results_t<T>* timeSortAndChooseMultiselect
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank) {

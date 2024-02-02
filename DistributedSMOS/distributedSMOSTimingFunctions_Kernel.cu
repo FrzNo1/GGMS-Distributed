@@ -49,6 +49,8 @@ __global__ void copyInChunk(T * outputVector, T * inputVector, uint * kList,
 
     if (idx < kListCount)
         outputVector[idx] = inputVector[numElements - kList[idx]];
+        
+    __syncthreads();
 
 }
 

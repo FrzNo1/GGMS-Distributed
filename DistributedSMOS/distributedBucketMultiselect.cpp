@@ -360,10 +360,37 @@ namespace DistributedBucketMultiselect {
 		    cudaMemcpy(kIndices, d_kIndices, numKs * sizeof (unsigned int), cudaMemcpyDeviceToHost);
 		    cudaMemcpy(kVals, d_kVals, numKs * sizeof (unsigned int), cudaMemcpyDeviceToHost);
 		}
-		
 		cudaDeviceSynchronize();
 		MPI_Barrier(MPI_COMM_WORLD);
 		
+		/*
+		int kMaxIndex = numKs - 1;
+		int kOffsetMax = 0;
+		int kOffsetMin = 0;
+		if (rank == 0) {
+			printf("%d, %d, %d\n", kVals[0], kVals[1], kVals[2]);
+			printf("%d, %d, %d\n", kVals[numKs - 3], kVals[numKs - 2], kVals[numKs - 1]);
+			int kMaxIndex = numKs - 1;
+			int kOffsetMax = 0;
+			while (kVals[kMaxIndex] == length_host) {
+			  output[kIndices[numKs-1]] = maximum_host;
+			  numKs--;
+			  kMaxIndex--;
+			  kOffsetMax++;
+			}
+
+			while (kVals[0] == 1) {
+			  output[kIndices[0]] = minimum_host;
+			  kIndices++;
+			  kVals++;
+			  numKs--;
+			  kOffsetMin++;
+			}
+		}
+		
+		cudaDeviceSynchronize();
+		MPI_Barrier(MPI_COMM_WORLD);
+		*/
 		
 		
 		
@@ -806,7 +833,8 @@ namespace DistributedBucketMultiselect {
 			copyValuesInChunk_CALL_B(d_output, d_newvector, d_kVals, 
 					d_kIndices, numKs, numBlocks, threadsPerBlock);
 					
-			cudaMemcpy (output, d_output, numKs * sizeof (T), 
+			cudaMemcpy (output, d_output, 
+					   (numKs) * sizeof (T), 
 		                      cudaMemcpyDeviceToHost);
         }
         

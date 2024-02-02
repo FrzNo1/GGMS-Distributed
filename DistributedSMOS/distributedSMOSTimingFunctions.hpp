@@ -15,6 +15,10 @@ template <typename T>
 void wrapupForTiming(cudaEvent_t &start, cudaEvent_t &stop, float time, results_t<T> * result);
 
 template<typename T>
+results_t<T>* timeSortAndChooseMultiselect_original
+	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+
+template<typename T>
 results_t<T>* timeSortAndChooseMultiselect
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 	

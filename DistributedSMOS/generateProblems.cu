@@ -591,8 +591,13 @@ void generateKUniformRandom (uint * kList, uint kListCount, uint vectorSize, cur
 
     cudaMemcpy (randomFloats, d_randomFloats, kListCount * sizeof (float), cudaMemcpyDeviceToHost);
 
-    for (int i = 0; i < kListCount; i++)
+    for (int i = 0; i < kListCount; i++) {
         kList[i] = (uint) (randomFloats[i] * (float) vectorSize);
+        if (kList[i] <= 0)
+        	kList[i] = 1;
+        if (kList[i] > vectorSize)
+        	kList[i] = vectorSize;
+    }
 
     cudaFree (d_randomFloats);
     free (randomFloats);
@@ -603,8 +608,13 @@ void generateKUniformRandom (uint * kList, uint kListCount, uint vectorSize, cur
 void generateKUniform (uint * kList, uint kListCount, uint vectorSize, curandGenerator_t generator) {
     kList[0] = 1;
 
-    for (uint i = 1; i < kListCount-1; i++)
+    for (uint i = 1; i < kListCount-1; i++) {
         kList[i] = (uint) ((i / (float) (kListCount-1)) * vectorSize);
+        if (kList[i] <= 0)
+        	kList[i] = 1;
+        if (kList[i] > vectorSize)
+        	kList[i] = vectorSize;
+    }
 
     kList[kListCount - 1] = vectorSize;
 }
@@ -628,8 +638,13 @@ void generateKNormal (uint * kList, uint kListCount, uint vectorSize, curandGene
 
     cudaMemcpy (randomFloats, d_randomFloats, kListCount * sizeof (float), cudaMemcpyDeviceToHost);
 
-    for (int i = 0; i < kListCount; i++)
+    for (int i = 0; i < kListCount; i++) {
         kList[i] = (uint) ((abs (randomFloats[i]) + 7) * (vectorSize / 14.0));
+        if (kList[i] <= 0)
+        	kList[i] = 1;
+        if (kList[i] > vectorSize)
+        	kList[i] = vectorSize;
+    }
 
     cudaFree (d_randomFloats);
     free (randomFloats);
@@ -659,6 +674,13 @@ void generateKCluster (uint * kList, uint kListCount, uint vectorSize, curandGen
             maxassigned = max(maxassigned,i+j);
         }
     }
+    
+    for (int i = 0; i < kListCount; i++) {
+    	if (kList[i] <= 0)
+        	kList[i] = 1;
+        if (kList[i] > vectorSize)
+        	kList[i] = vectorSize;
+    }
 
 
     // To ensure the full kList has appropriate assignments, we fill in the end of the Klist if needed.
@@ -685,8 +707,13 @@ void generateKSectioned (uint * kList, uint kListCount, uint vectorSize, curandG
 
     kList[0] = (uint) (*randomFloat * (vectorSize - kListCount));
 
-    for (int i = 1; i < kListCount; i++)
+    for (int i = 1; i < kListCount; i++) {
         kList[i] = kList[i-1] + 1;
+        if (kList[i] <= 0)
+        	kList[i] = 1;
+        if (kList[i] > vectorSize)
+        	kList[i = vectorSize];
+   }
 
     cudaFree (d_randomFloat);
     free (randomFloat);
