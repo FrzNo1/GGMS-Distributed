@@ -192,7 +192,7 @@ namespace CompareDistributedSMOS {
 
         //these are the functions that can be called
         ptrToTimingFunction arrayOfTimingFunctions[NUMBEROFALGORITHMS] =
-                {&timeSortAndChooseMultiselect<T>,
+                {&timeSortAndChooseMultiselect_original<T>,
                  &timeDistributedBucketMultiselect<T>, 
                  &timeIterativeSMOS<T>,
                  &timeDistributedSMOS<T>};
@@ -657,6 +657,7 @@ namespace CompareDistributedSMOS {
 
 
 
+
 /// ***********************************************************
 /// ***********************************************************
 /// **** compareDistributedSMOS: the main function
@@ -712,6 +713,8 @@ int main (int argc, char *argv[]) {
 		printf("Please enter number of tests to run per K: ");
 		scanf("%u", &testCount);
 		*/
+		
+		
 		type = (unsigned int)atoi(argv[1]);
 		distributionType = (unsigned int)atoi(argv[2]);
 		kDistribution = (unsigned int)atoi(argv[3]);
@@ -721,6 +724,7 @@ int main (int argc, char *argv[]) {
 		jumpK = (unsigned int)atoi(argv[7]);
 		stopK = (unsigned int)atoi(argv[8]);
 		testCount = (unsigned int)atoi(argv[9]);
+		
     }
     
     MPI_Barrier(MPI_COMM_WORLD);

@@ -1,16 +1,16 @@
 #!/bin/bash
 # Run tests for distributedSMOS
-mpirun -np 4 -hosts bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 0 15 15 50 100 800 4
-mpirun -np 4 -hosts bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 1 15 15 50 100 800 4
-mpirun -np 4 -hosts bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 2 15 15 50 100 800 4
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 3 20 20 50 50 1000 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 4 20 20 50 50 1000 10
+mpirun -np 4 -H bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 0 22 22 50 50 800 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 1 24 24 50 50 800 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 2 24 24 50 50 800 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 3 24 24 50 50 800 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 4 24 24 50 50 800 10
 
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 0 20 20 50 50 500 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 1 20 20 50 50 500 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 2 20 20 50 50 500 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 3 20 20 50 50 500 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 4 20 20 50 50 500 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 0 24 24 50 50 500 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 1 24 24 50 50 500 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 2 24 24 50 50 500 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 3 24 24 50 50 500 10
+# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 4 24 24 50 50 500 10
 
 
 
@@ -23,13 +23,13 @@ mpirun -np 4 -hosts bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 2
 
 
 
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 0 1 15 20 100 100 101 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 2 0 1 15 20 100 100 101 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 0 1 15 20 100 100 101 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 1 1 15 20 100 100 101 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 1 1 1 15 20 100 100 101 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 3 1 15 20 100 100 101 10
-# mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./runTestsDistributedSMOS 0 9 1 15 20 100 100 101 10
+# mpirun -np 4 -hosts mccarthy,householder ./runTestsDistributedSMOS 0 0 1 15 25 100 100 101 10
+# mpirun -np 4 -hosts mccarthy,householder ./runTestsDistributedSMOS 2 0 1 15 25 100 100 101 10
+# mpirun -np 4 -hosts mccarthy,householder ./runTestsDistributedSMOS 1 0 1 15 25 100 100 101 10
+# mpirun -np 4 -hosts mccarthy,householder ./runTestsDistributedSMOS 0 1 1 15 25 100 100 101 10
+# mpirun -np 4 -hosts mccarthy,householder ./runTestsDistributedSMOS 1 1 1 15 25 100 100 101 10
+# mpirun -np 4 -hosts mccarthy,householder ./runTestsDistributedSMOS 0 3 1 15 25 100 100 101 10
+# mpirun -np 4 -hosts mccarthy,householder ./runTestsDistributedSMOS 0 9 1 15 25 100 100 101 10
 
 # exit
 # ssh bollee
