@@ -1271,3 +1271,136 @@ namespace DistributedSMOS {
              double* output, int blocks, int threads, int rank);
 	
 }
+
+
+
+/*
+/// ***********************************************************
+/// ***********************************************************
+/// **** distributedSMOS: the main function
+/// ***********************************************************
+/// ***********************************************************
+
+int main(int argc, char *argv[]) {
+	int rank, size;
+	MPI_Init(&argc, &argv);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+
+	/// ***************************************************************
+	/// **** Create Problems
+	/// **** Create the vector and distribute them to different slots
+	/// ***************************************************************
+
+	int vector_size_per_slot = PROBLEM_SIZE / RANK_NUM;
+	int* h_vector_total_host;
+	int* h_vector_each_send;
+
+	int length_local = PROBLEM_SIZE / RANK_NUM;
+	int* h_vector_local = (int*)malloc(sizeof(int) * vector_size_per_slot);
+	int* d_vector_local = NULL;
+
+
+	int numKs = NUM_K_SIZE;
+	unsigned int* kVals = (unsigned int*)malloc(numKs * sizeof(unsigned int));
+
+	int* output = (int*)malloc(numKs * sizeof(int));
+
+	int threadsPerBlock = 1024;
+	int numBlocks = 12;
+	int numBuckets = 8192;
+
+	
+
+	if (rank == 0) {
+		h_vector_total_host = (int*)malloc(sizeof(int) * PROBLEM_SIZE);
+		h_vector_each_send = (int*)malloc(sizeof(int) * vector_size_per_slot);
+		
+		time_t t;
+		srand((unsigned) time(&t));
+
+		// assign and send the subarray to each slot
+		for (int i = 0; i < PROBLEM_SIZE; i++) {
+			h_vector_total_host[i] = 1 + i;
+		}
+
+		for (int i = 1; i < RANK_NUM; i++) {
+			for (int j = 0; j < vector_size_per_slot; j++) {
+				h_vector_each_send[j] = h_vector_total_host[j + i * vector_size_per_slot];
+			}
+			MPI_Send_CALL(h_vector_each_send, vector_size_per_slot,
+				i, 0, MPI_COMM_WORLD);
+		}
+
+		// assign vector to itself
+		for (int i = 0; i < vector_size_per_slot; i++) {
+			h_vector_local[i] = h_vector_total_host[i];
+		}
+	}
+
+
+
+    // MPI_Barrier(MPI_COMM_WORLD);
+    
+	if (true) {
+		cudaMalloc((void**)&d_vector_local, sizeof(int) * length_local);
+
+		cudaDeviceSynchronize();
+
+		if (rank != 0) {
+		    MPI_Recv(h_vector_local, length_local, MPI_INT, 0, 0, MPI_COMM_WORLD,
+			     MPI_STATUS_IGNORE);
+		}
+
+		cudaMemcpy(d_vector_local, h_vector_local, sizeof(int) * length_local,
+			   cudaMemcpyHostToDevice);
+			   
+		cudaDeviceSynchronize();
+
+
+		for (int i = 0; i < numKs; i++) {
+			kVals[i] = i * 10 + 1;
+			output[i] = 0;
+		}
+
+    }
+
+    MPI_Barrier(MPI_COMM_WORLD);
+
+    
+    
+	DistributedSMOS::distributedSMOS
+		(d_vector_local, length_local, length_local * 4, kVals, numKs, output, 
+		 numBlocks, threadsPerBlock, numBuckets, 17, rank);
+	
+
+	MPI_Barrier(MPI_COMM_WORLD);
+	
+	
+	// test part
+	if (rank == 0) {
+		for (int i = 0; i < numKs; i++) {
+			printf("%d: %d  ", kVals[i], output[i]);
+		}
+		printf("\n");
+	}
+
+	free(h_vector_local);
+	free(kVals);
+	free(output);
+	
+	cudaFree(d_vector_local);
+	
+	if (rank == 0) {
+		free(h_vector_total_host);
+		free(h_vector_each_send);
+	}
+	
+	
+	MPI_Finalize();
+
+	return 0;
+}
+*/
+

@@ -810,7 +810,7 @@ int main (int argc, char *argv[]) {
     MPI_Barrier(MPI_COMM_WORLD);
     
 
-	
+	/*
     switch(type){
         case 0:
             runTests<float>(distributionType,fileName,startPower,stopPower,testCount,
@@ -828,6 +828,7 @@ int main (int argc, char *argv[]) {
             printf("You entered and invalid option, now exiting\n");
             break;
     }
+    */
     
     
 

@@ -698,17 +698,17 @@ int main (int argc, char *argv[]) {
 		printf("Please enter K distribution type: ");
 		printKDistributionOptions();
 		scanf("%u", &kDistribution);
-		printf("Please enter Start power: ");
+		printf("Please enter Start power: \n");
 		scanf("%u", &startPower);
-		printf("Please enter Stop power: ");
+		printf("Please enter Stop power: \n");
 		scanf("%u", &stopPower);
-		printf("Please enter Start number of K values: ");
+		printf("Please enter Start number of K values: \n");
 		scanf("%u", &startK);
-		printf("Please enter number of K values to jump by: ");
+		printf("Please enter number of K values to jump by: \n");
 		scanf("%u", &jumpK);
-		printf("Please enter Stop number of K values: ");
+		printf("Please enter Stop number of K values: \n");
 		scanf("%u", &stopK);
-		printf("Please enter number of tests to run per K: ");
+		printf("Please enter number of tests to run per K: \n");
 		scanf("%u", &testCount);
 		
 		
@@ -804,6 +804,7 @@ int main (int argc, char *argv[]) {
             printf("You entered and invalid option, now exiting\n");
             break;
     }
+    
     
     
 

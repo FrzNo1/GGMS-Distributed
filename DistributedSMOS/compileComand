@@ -19,7 +19,7 @@ mpic++ test.cpp -I/usr/local/cuda/include -I/usr/local/cuda-11.4/include -I./lib
 mpic++ -c -I/usr/local/cuda/include -I/usr/local/cuda-11.4/include -I./lib/ -I. -L/usr/local/cuda/lib64 distributedSMOS.cpp -o distributedSMOS.o
 nvcc -arch=sm_60 -c distributedSMOS_Kernel.cu -o distributedSMOS_Kernel.o
 mpic++ distributedSMOS.o distributedSMOS_Kernel.o -lcudart -I./lib/ -I. -L/usr/local/cuda/lib64 -o program
-mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./program
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./program
 
 
 
@@ -28,7 +28,7 @@ mpic++ -c -I/usr/local/cuda/include -I/usr/local/cuda-11.4/include -I./lib/ -I. 
 nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c distributedSMOS_Kernel.cu -o distributedSMOS_Kernel.o
 nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c iterativeSMOS.cu -o iterativeSMOS.o
 nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c bucketMultiselect.cu -o bucketMultiselect.o
-nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c distributedSMOSTimingFunctionsOld.cu -o distributedSMOSTimingFunctionsOld.o
+nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c distributedSMOSTimingFunctions.cu -o distributedSMOSTimingFunctions.o
 nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c generateProblems.cu -o generateProblems.o
 nvcc -I./lib/ -I. -arch=sm_60 -lcurand -lm -c printFunctions.cu -o printFunctions.o
 mpic++ -c -I/usr/local/cuda/include -I/usr/local/cuda-11.4/include -I./lib/ -I. -L/usr/local/cuda/lib64 compareDistributedSMOSOld.cpp -o compareDistributedSMOSOld.o
@@ -82,4 +82,4 @@ mpirun -np 4 -hosts bollee,bellman,mccarthy,householder ./distributedBucketMulti
 
 
 
-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
+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
