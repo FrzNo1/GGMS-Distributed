@@ -296,7 +296,7 @@ namespace CompareDistributedSMOS {
                     runOrder[m] = m;
 
                 std::random_shuffle(runOrder, runOrder + NUMBEROFALGORITHMS);     // potentially not work
-                fileCsv << size << "," << numKs << "," <<
+                fileCsv << size << "," << RANK_NUM << "," << numKs << "," <<
                         namesOfGeneratingFunctions[generateType] << "," <<
                         namesOfKGenerators[kGenerateType] << ",";
                         
@@ -527,7 +527,7 @@ namespace CompareDistributedSMOS {
     template<typename T>
     void runTests (uint generateType, char* fileName, uint startPower, uint stopPower
             , uint timesToTestEachK, uint kDistribution, uint startK, uint stopK, uint kJump, int rank) {
-        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 1, 1};
+        uint algorithmsToRun[NUMBEROFALGORITHMS]= {1, 1, 0, 1};
         uint size;
         uint i;
         uint arrayOfKs[stopK+1];
@@ -551,13 +551,13 @@ namespace CompareDistributedSMOS {
                 // test part
                 // printf("k generater seed: %llu\n", seed);
                 
-                /*
+                
                 // write k-order seed to file
-                ofstream fileCsv;
-                fileCsv.open(fileName, ios_base::app);
-                fileCsv << "k-order seed: " << seed << "\n";
-                fileCsv.close();
-                */
+                // ofstream fileCsv;
+                // fileCsv.open(fileName, ios_base::app);
+                // fileCsv << "k-order seed: " << seed << "\n";
+                // fileCsv.close();
+                
                 
                 curandGenerator_t generator;
                 srand(unsigned(time(NULL)));

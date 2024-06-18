@@ -26,6 +26,10 @@
 #define PROBLEM_SIZE 10000000
 #define NUM_K_SIZE 200
 
+#define CUDA_CALL(x) do { if((x) != cudaSuccess) {      \
+      printf("Error at %s:%d\n",__FILE__,__LINE__);     \
+      return EXIT_FAILURE;}} while(0)
+
 /// ***********************************************************
 /// ***********************************************************
 /// **** MPI Message
@@ -241,7 +245,7 @@ namespace DistributedBucketMultiselect {
 		int sampleSize_local = sampleSize_host / RANK_NUM;
 		T* sampleVector = (T*)malloc(sampleSize_local * sizeof(T));
 		T* d_sampleVector;
-		cudaMalloc(&d_sampleVector, sampleSize_local * sizeof(T));
+		CUDA_CALL(cudaMalloc(&d_sampleVector, sampleSize_local * sizeof(T)));
 		
 		// pivots variables
 		// potential to simplify
@@ -255,33 +259,33 @@ namespace DistributedBucketMultiselect {
 		double* d_slopes;
 		T* pivots = (T*)malloc(numPivots * sizeof(T));
 		T* d_pivots;
-		cudaMalloc(&d_slopes, numSpaceAllocate * sizeof(double));
-		cudaMalloc(&d_pivots, numPivots * sizeof(T));
+		CUDA_CALL(cudaMalloc(&d_slopes, numSpaceAllocate * sizeof(double)));
+		CUDA_CALL(cudaMalloc(&d_pivots, numPivots * sizeof(T)));
 		
 		T * pivotsLeft = (T*)malloc(numSpaceAllocate * sizeof(T));
         T * pivotsRight = (T*)malloc(numSpaceAllocate * sizeof(T));
         T * d_pivotsLeft;
         T * d_pivotsRight;
-        cudaMalloc(&d_pivotsLeft, numSpaceAllocate * sizeof(T));
-        cudaMalloc(&d_pivotsRight, numSpaceAllocate * sizeof(T));
+        CUDA_CALL(cudaMalloc(&d_pivotsLeft, numSpaceAllocate * sizeof(T)));
+        CUDA_CALL(cudaMalloc(&d_pivotsRight, numSpaceAllocate * sizeof(T)));
         
 		
 		// Allocate memory to store bucket assignments
         size_t size = length_local * sizeof(unsigned int);
         unsigned int* d_elementToBucket;    //array showing what bucket every element is in
-        cudaMalloc(&d_elementToBucket, size);
+        CUDA_CALL(cudaMalloc(&d_elementToBucket, size));
         
         // Allocate memory to store bucket counts
         size_t totalBucketSize = numBlocks * numBuckets * sizeof(unsigned int);
         unsigned int * h_bucketCount = (unsigned int *) malloc (numBuckets * sizeof (unsigned int));
         //array showing the number of elements in each bucket
         unsigned int * d_bucketCount;
-        cudaMalloc(&d_bucketCount, totalBucketSize);
+        CUDA_CALL(cudaMalloc(&d_bucketCount, totalBucketSize));
         
         
         // Allocate memory to store the new vector for kVals
         T * d_newvector;
-        cudaMalloc(&d_newvector, length_local * sizeof(T));
+        CUDA_CALL(cudaMalloc(&d_newvector, length_local * sizeof(T)));
         T * addressOfd_newvector = d_newvector;
         
         
@@ -305,13 +309,13 @@ namespace DistributedBucketMultiselect {
 		unsigned int* d_reindexCounter;
 		unsigned int* kthnumBuckets = (unsigned int*)malloc(numSpaceAllocate * sizeof(unsigned int));
         unsigned int* d_kthnumBuckets;
-        cudaMalloc(&d_kVals, numSpaceAllocate * sizeof(unsigned int));
-		cudaMalloc(&d_kIndices, numKs * sizeof(unsigned int));
-		cudaMalloc(&d_kthBuckets, numSpaceAllocate * sizeof(unsigned int));
-		cudaMalloc(&d_uniqueBuckets, numSpaceAllocate * sizeof(unsigned int));
-		cudaMalloc(&d_uniqueBucketCounts, numSpaceAllocate * sizeof(unsigned int));
-		cudaMalloc(&d_reindexCounter, numSpaceAllocate * sizeof(unsigned int));
-		cudaMalloc(&d_kthnumBuckets, numSpaceAllocate * sizeof(unsigned int));
+        CUDA_CALL(cudaMalloc(&d_kVals, numSpaceAllocate * sizeof(unsigned int)));
+		CUDA_CALL(cudaMalloc(&d_kIndices, numKs * sizeof(unsigned int)));
+		CUDA_CALL(cudaMalloc(&d_kthBuckets, numSpaceAllocate * sizeof(unsigned int)));
+		CUDA_CALL(cudaMalloc(&d_uniqueBuckets, numSpaceAllocate * sizeof(unsigned int)));
+		CUDA_CALL(cudaMalloc(&d_uniqueBucketCounts, numSpaceAllocate * sizeof(unsigned int)));
+		CUDA_CALL(cudaMalloc(&d_reindexCounter, numSpaceAllocate * sizeof(unsigned int)));
+		CUDA_CALL(cudaMalloc(&d_kthnumBuckets, numSpaceAllocate * sizeof(unsigned int)));
 		
 		for (int i = 0; i < numKs; i++) {
 			kIndices[i] = i;
@@ -333,7 +337,7 @@ namespace DistributedBucketMultiselect {
 			h_bucketCount_Host = (unsigned int *)malloc(numBuckets * sizeof(unsigned int));
 			h_bucketCount_Receive = (unsigned int *)malloc(numBuckets * sizeof(unsigned int));
 			sampleVector_Host = (T *)malloc(sampleSize_host * sizeof(T));
-			cudaMalloc(&d_sampleVector_Host, sampleSize_host * sizeof(T));
+			CUDA_CALL(cudaMalloc(&d_sampleVector_Host, sampleSize_host * sizeof(T)));
 		}
 
 		cudaDeviceSynchronize();
@@ -349,16 +353,20 @@ namespace DistributedBucketMultiselect {
 		/// ***********************************************************
 
 		if (true) {
-			cudaMemcpy(d_kIndices, kIndices, numKs * sizeof(unsigned int), cudaMemcpyHostToDevice);
-			cudaMemcpy(d_kVals, kVals, numKs * sizeof(unsigned int), cudaMemcpyHostToDevice);
+			CUDA_CALL(cudaMemcpy(d_kIndices, kIndices, 
+					numKs * sizeof(unsigned int), cudaMemcpyHostToDevice));
+			CUDA_CALL(cudaMemcpy(d_kVals, kVals, numKs * sizeof(unsigned int), 
+					cudaMemcpyHostToDevice));
 
 			sort_by_key_CALL_B(d_kVals, d_kIndices, numKs);
 			
 			cudaDeviceSynchronize();
 			MPI_Barrier(MPI_COMM_WORLD);
 
-		    cudaMemcpy(kIndices, d_kIndices, numKs * sizeof (unsigned int), cudaMemcpyDeviceToHost);
-		    cudaMemcpy(kVals, d_kVals, numKs * sizeof (unsigned int), cudaMemcpyDeviceToHost);
+		    CUDA_CALL(cudaMemcpy(kIndices, d_kIndices, 
+		    		numKs * sizeof (unsigned int), cudaMemcpyDeviceToHost));
+		    CUDA_CALL(cudaMemcpy(kVals, d_kVals, 
+		    		numKs * sizeof (unsigned int), cudaMemcpyDeviceToHost));
 		}
 		cudaDeviceSynchronize();
 		MPI_Barrier(MPI_COMM_WORLD);
@@ -406,8 +414,8 @@ namespace DistributedBucketMultiselect {
 		    generateSamples_distributive_CALL_B
 				(d_vector_local, d_sampleVector, length_local, sampleSize_local);
 				
-			cudaMemcpy(sampleVector, d_sampleVector, sampleSize_local * sizeof(T), 
-					   cudaMemcpyDeviceToHost);
+			CUDA_CALL(cudaMemcpy(sampleVector, d_sampleVector, 
+					sampleSize_local * sizeof(T), cudaMemcpyDeviceToHost));
 					   
 			cudaDeviceSynchronize();
 			MPI_Barrier(MPI_COMM_WORLD);
@@ -431,8 +439,8 @@ namespace DistributedBucketMultiselect {
 				}
 			}
 			
-			cudaMemcpy(d_sampleVector_Host, sampleVector_Host, sampleSize_host * sizeof(T), 
-					   cudaMemcpyHostToDevice);
+			CUDA_CALL(cudaMemcpy(d_sampleVector_Host, sampleVector_Host, 
+				sampleSize_host * sizeof(T), cudaMemcpyHostToDevice));
 		}
 		
 		
@@ -554,14 +562,14 @@ namespace DistributedBucketMultiselect {
 			
 			
 			// All slots send information to GPU
-			cudaMemcpy(d_slopes, slopes, (numPivots - 1) * sizeof(double), 
-					   cudaMemcpyHostToDevice);
-			cudaMemcpy(d_pivotsLeft, pivotsLeft, numUniqueBuckets * sizeof(T), 
-					   cudaMemcpyHostToDevice);
-			cudaMemcpy(d_pivotsRight, pivotsRight, numUniqueBuckets * sizeof(T), 
-					   cudaMemcpyHostToDevice);
-			cudaMemcpy(d_kthnumBuckets, kthnumBuckets, numUniqueBuckets * sizeof(unsigned int), 
-					   cudaMemcpyHostToDevice);
+			CUDA_CALL(cudaMemcpy(d_slopes, slopes, (numPivots - 1) * sizeof(double), 
+					   cudaMemcpyHostToDevice));
+			CUDA_CALL(cudaMemcpy(d_pivotsLeft, pivotsLeft, numUniqueBuckets * sizeof(T), 
+					   cudaMemcpyHostToDevice));
+			CUDA_CALL(cudaMemcpy(d_pivotsRight, pivotsRight, numUniqueBuckets * sizeof(T), 
+					   cudaMemcpyHostToDevice));
+			CUDA_CALL(cudaMemcpy(d_kthnumBuckets, kthnumBuckets, 
+				numUniqueBuckets * sizeof(unsigned int), cudaMemcpyHostToDevice));
 			
 		}
 		
@@ -599,8 +607,8 @@ namespace DistributedBucketMultiselect {
         	// potential to simplify using only GPU
         	// consider the last row which holds the total counts
         	int sumRowIndex = numBuckets * (numBlocks - 1);
-        	cudaMemcpy(h_bucketCount, d_bucketCount + sumRowIndex, sizeof(unsigned int) * numBuckets,
-        			   cudaMemcpyDeviceToHost);
+        	CUDA_CALL(cudaMemcpy(h_bucketCount, d_bucketCount + sumRowIndex, \
+        		sizeof(unsigned int) * numBuckets, cudaMemcpyDeviceToHost));
         			   
         	if (rank != 0) {
         		MPI_Send_CALL(h_bucketCount, numBuckets, 0, 
@@ -709,10 +717,10 @@ namespace DistributedBucketMultiselect {
     					(reindexCounter, h_bucketCount, uniqueBuckets, &length_local,
     					 &length_local_Old, numUniqueBuckets);
     		
-    		cudaMemcpy(d_reindexCounter, reindexCounter, numUniqueBuckets * sizeof(unsigned int), 
-    				   cudaMemcpyHostToDevice);
-    		cudaMemcpy(d_uniqueBuckets, uniqueBuckets, numUniqueBuckets * sizeof(unsigned int), 
-    				   cudaMemcpyHostToDevice);
+    		CUDA_CALL(cudaMemcpy(d_reindexCounter, reindexCounter, 
+    				numUniqueBuckets * sizeof(unsigned int), cudaMemcpyHostToDevice));
+    		CUDA_CALL(cudaMemcpy(d_uniqueBuckets, uniqueBuckets, 
+    				numUniqueBuckets * sizeof(unsigned int), cudaMemcpyHostToDevice));
     				   
     		reindexCounts_CALL_B(d_bucketCount, numBuckets, numBlocks, d_reindexCounter, 
     						   d_uniqueBuckets, numUniqueBuckets, threadsPerBlock);
@@ -747,8 +755,8 @@ namespace DistributedBucketMultiselect {
 		
 		
 		T* newvector = (T*)malloc(length_local * sizeof(T));
-		cudaMemcpy(newvector, d_vector_local, length_local * sizeof(T),
-				   cudaMemcpyDeviceToHost);
+		CUDA_CALL(cudaMemcpy(newvector, d_vector_local, length_local * sizeof(T),
+				   cudaMemcpyDeviceToHost));
 				   
 		// each slot send active vector to host
 		if (rank != 0) {
@@ -814,28 +822,28 @@ namespace DistributedBucketMultiselect {
 		/// **** we solve the reduced problem.
 		/// ***********************************************************
 		
-		
+		cudaFree(addressOfd_newvector);
 		if (rank == 0) {
-			cudaFree(d_newvector);
-		    cudaMalloc(&d_newvector, length_host * sizeof(T));
-		    cudaMemcpy(d_newvector, newvector_host, length_host * sizeof(T),
-		    		   cudaMemcpyHostToDevice);
+			// cudaFree(d_newvector);
+		    CUDA_CALL(cudaMalloc(&d_newvector, length_host * sizeof(T)));
+		    CUDA_CALL(cudaMemcpy(d_newvector, newvector_host, length_host * sizeof(T),
+		    		   cudaMemcpyHostToDevice));
 		    		   
 		    // sort the vector
 		    sort_vector_CALL_B(d_newvector, length_host);
 		    
 		    T* d_output = (T*)d_elementToBucket;
-		    cudaMemcpy (d_kVals, kVals, numKs * sizeof (uint), 
-		                      cudaMemcpyHostToDevice);
-			cudaMemcpy (d_kIndices, kIndices, numKs * sizeof (uint), 
-				                  cudaMemcpyHostToDevice);
+		    CUDA_CALL(cudaMemcpy (d_kVals, kVals, numKs * sizeof (uint), 
+		                      cudaMemcpyHostToDevice));
+			CUDA_CALL(cudaMemcpy (d_kIndices, kIndices, numKs * sizeof (uint), 
+				                  cudaMemcpyHostToDevice));
 				                  
 			copyValuesInChunk_CALL_B(d_output, d_newvector, d_kVals, 
 					d_kIndices, numKs, numBlocks, threadsPerBlock);
 					
-			cudaMemcpy (output, d_output, 
+			CUDA_CALL(cudaMemcpy (output, d_output, 
 					   (numKs) * sizeof (T), 
-		                      cudaMemcpyDeviceToHost);
+		                      cudaMemcpyDeviceToHost));
         }
         
         
@@ -855,6 +863,7 @@ namespace DistributedBucketMultiselect {
         free(reindexCounter);
         free(kthnumBuckets);
         free(sampleVector);
+        free(newvector);
 
 
         cudaFree(d_slopes);
@@ -863,7 +872,6 @@ namespace DistributedBucketMultiselect {
         cudaFree(d_pivotsRight);
         cudaFree(d_elementToBucket);
         cudaFree(d_bucketCount);
-        cudaFree(addressOfd_newvector);
         cudaFree(d_kVals);
         cudaFree(d_kthBuckets);
         cudaFree(d_kIndices);
@@ -878,6 +886,10 @@ namespace DistributedBucketMultiselect {
         	free(h_bucketCount_Receive);
         	free(sampleVector_Host);
         	cudaFree(d_sampleVector_Host);
+        	cudaFree(d_newvector);
+        	free(newvector_host);
+        	free(newvector_receive);
+        	
         }
         
         MPI_Barrier(MPI_COMM_WORLD);

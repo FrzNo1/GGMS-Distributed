@@ -211,8 +211,8 @@ namespace IterativeSMOS {
         // consider the last row which holds the total counts
         int sumsRowIndex= numBuckets * (numBlocks-1);
 
-        cudaMemcpy(h_bucketCount, d_bucketCount + sumsRowIndex,
-                   sizeof(unsigned int) * numBuckets, cudaMemcpyDeviceToHost);
+        CUDA_CALL(cudaMemcpy(h_bucketCount, d_bucketCount + sumsRowIndex,
+                   sizeof(unsigned int) * numBuckets, cudaMemcpyDeviceToHost));
 
         int kBucket = 0;
         int k;
@@ -922,8 +922,8 @@ namespace IterativeSMOS {
 
         // set the pivots which are next to the min and max pivots using the random element
         // endOffset away from the ends
-        cudaMemcpy (pivots + 1, d_randomInts + endOffset - 1, sizeof (int)
-                , cudaMemcpyDeviceToHost);
+        cudaMemcpy (pivots + 1, d_randomInts + endOffset - 1, sizeof (int),
+                  cudaMemcpyDeviceToHost);
         cudaMemcpy (pivots + numPivots - 2, d_randomInts + sizeOfSample - endOffset - 1,
                     sizeof (int), cudaMemcpyDeviceToHost);
         slopes[0] = numSmallBuckets / (double) (pivots[1] - pivots[0]);
@@ -986,8 +986,8 @@ namespace IterativeSMOS {
 
         // set the pivots which are next to the min and max pivots using the random element
         // endOffset away from the ends
-        cudaMemcpy (pivots + 1, d_randomInts + endOffset - 1, sizeof (unsigned int)
-                , cudaMemcpyDeviceToHost);
+        cudaMemcpy (pivots + 1, d_randomInts + endOffset - 1, sizeof (unsigned int),
+                cudaMemcpyDeviceToHost);
         cudaMemcpy (pivots + numPivots - 2, d_randomInts + sizeOfSample - endOffset - 1,
                     sizeof (unsigned int), cudaMemcpyDeviceToHost);
         slopes[0] = numSmallBuckets / (double) (pivots[1] - pivots[0]);

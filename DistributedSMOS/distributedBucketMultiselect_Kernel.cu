@@ -17,6 +17,10 @@
 
 #define MAX_THREADS_PER_BLOCK 1024
 
+#define CUDA_CALL(x) do { if((x) != cudaSuccess) {      \
+      printf("Error at %s:%d\n",__FILE__,__LINE__);     \
+      return EXIT_FAILURE;}} while(0)
+
 using namespace std;
 
 // thrust::minmax_element function

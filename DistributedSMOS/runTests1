@@ -1,0 +1,52 @@
+#!/bin/bash
+# Run tests for distributedSMOS
+# all cases are in four nodes
+
+# 1. different k-order distribution
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 0 0 21 26 101 100 1001 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 0 1 21 26 101 100 1001 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 0 2 21 26 101 100 1001 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 0 3 21 26 101 100 1001 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 0 4 21 26 101 100 1001 25
+
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 1 0 0 21 26 101 100 501 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 1 0 1 21 26 101 100 501 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 1 0 2 21 26 101 100 501 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 1 0 3 21 26 101 100 501 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 1 0 4 21 26 101 100 501 25
+
+
+# 2. different vector distribution
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 0 1 21 26 101 100 1001 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 1 1 21 26 101 100 1001 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 3 1 21 26 101 100 1001 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 0 9 1 22 26 101 100 1001 25
+
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 1 0 1 21 26 101 100 501 25
+mpirun -np 4 -H zermelo,peano,kleene,rosser ./runTestsDistributedSMOS 1 1 1 21 26 101 100 501 25
+
+
+# 3. different length of vector
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 0 0 17 26 101 900 1001 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 0 1 17 26 101 900 1001 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 0 2 17 26 101 900 1001 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 0 3 17 26 101 900 1001 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 0 4 17 26 101 900 1001 25
+
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 1 0 0 17 26 101 400 501 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 1 0 1 17 26 101 400 501 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 1 0 2 17 26 101 400 501 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 1 0 3 17 26 101 400 501 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 1 0 4 17 26 101 400 501 25
+
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 0 1 17 26 101 900 1001 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 1 1 17 26 101 900 1001 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 3 1 17 26 101 900 1001 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 0 9 1 17 26 101 900 1001 25
+
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 1 0 1 17 26 101 400 501 25
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 1 1 1 17 26 101 400 501 25
+
+# mpirun -np 4 -H delamain,taussky,harary,ritchie ./runTestsDistributedSMOS 2 0 1 17 26 101 900 1001 25
+
+
