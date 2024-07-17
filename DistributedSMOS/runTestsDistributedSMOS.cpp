@@ -53,13 +53,15 @@
 
 
 
-#define RANK_NUM 4
+// #define RANK_NUM 4
 #define NUMBEROFALGORITHMS 4
 char* namesOfMultiselectTimingFunctions[NUMBEROFALGORITHMS] =
         {"Sort and Choose Multiselect",  "DistributedBucketMultiSelect",
          "DistributedIterativeSMOS", "DistributedSMOS"};
 
 #define NUMBEROFKDISTRIBUTIONS 5
+
+int RANK_NUM = 8;
 
 /// ***********************************************************
 /// ***********************************************************

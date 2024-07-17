@@ -22,7 +22,7 @@
 // include h files
 #include "distributedSMOS.hpp"
 
-#define RANK_NUM 4
+// #define RANK_NUM 4
 #define CUTOFF 33554432
 #define PROBLEM_SIZE 100000
 #define NUM_K_SIZE 100
@@ -31,7 +31,7 @@
       printf("Error at %s:%d\n",__FILE__,__LINE__);     \
       return EXIT_FAILURE;}} while(0)
 			
-
+extern int RANK_NUM;
 
 /// ***********************************************************
 /// ***********************************************************

@@ -22,13 +22,15 @@
 // inclusde h files
 #include "distributedBucketMultiselect.hpp"
 
-#define RANK_NUM 4
+// #define RANK_NUM 4
 #define PROBLEM_SIZE 10000000
 #define NUM_K_SIZE 200
 
 #define CUDA_CALL(x) do { if((x) != cudaSuccess) {      \
       printf("Error at %s:%d\n",__FILE__,__LINE__);     \
       return EXIT_FAILURE;}} while(0)
+      
+extern int RANK_NUM;
 
 /// ***********************************************************
 /// ***********************************************************
