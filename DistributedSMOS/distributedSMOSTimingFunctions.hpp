@@ -23,15 +23,19 @@ results_t<T>* timeSortAndChooseMultiselect
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 	
 template<typename T>
+results_t<T>* timeSortAndChooseMultiselect_TwoRank
+	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+	
+template<typename T>
 results_t<T>* timeSortAndChooseMultiselect_FourRank
+	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+	
+template<typename T>
+results_t<T>* timeSortAndChooseMultiselect_SixRank
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 	
 template<typename T>
 results_t<T>* timeSortAndChooseMultiselect_EightRank
-	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
-	
-template<typename T>
-results_t<T>* timeSortAndChooseMultiselect_FourRank
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 	
 template<typename T>

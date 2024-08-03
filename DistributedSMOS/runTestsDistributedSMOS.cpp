@@ -61,7 +61,7 @@ char* namesOfMultiselectTimingFunctions[NUMBEROFALGORITHMS] =
 
 #define NUMBEROFKDISTRIBUTIONS 5
 
-int RANK_NUM = 8;
+int RANK_NUM = 2;
 
 /// ***********************************************************
 /// ***********************************************************

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+mpirun -np 6 -H zermelo,peano,kleene,rosser,delamain,harary ./runTestsDistributedSMOS 0 0 1 25 25 101 100 1001 25
+mpirun -np 6 -H zermelo,peano,kleene,rosser,delamain,harary ./runTestsDistributedSMOS 0 0 2 25 25 101 100 1001 25
+mpirun -np 6 -H zermelo,peano,kleene,rosser,delamain,harary ./runTestsDistributedSMOS 0 1 1 25 25 101 100 1001 25
+mpirun -np 6 -H zermelo,peano,kleene,rosser,delamain,harary ./runTestsDistributedSMOS 1 0 1 25 25 101 100 501 25
+
+mpirun -np 6 -H zermelo,peano,kleene,rosser,delamain,harary ./runTestsDistributedSMOS 0 0 1 17 25 101 900 1001 25
+mpirun -np 6 -H zermelo,peano,kleene,rosser,delamain,harary ./runTestsDistributedSMOS 1 0 1 17 25 101 400 501 25

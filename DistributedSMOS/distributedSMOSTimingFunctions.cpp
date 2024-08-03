@@ -60,10 +60,20 @@ struct results_t {
 	8: host send startSignal to each rank in timeBucketMultiSelect
 	9: host send stop to each rank in timeBucketMultiSelect
 	
+	TODO: miss documentation
 	11:
 	12:
 	13:
 	14:
+	
+	21:
+	22:
+	23:
+	24:
+	
+	31:
+	32:
+	33
 	
 	22: host send startSignal to each rank in timeDistributedSMOS
 	23: host send stopSignal to each rank in timeDistributedSMOS
@@ -172,6 +182,47 @@ template void mergeSort_helper(unsigned int* vec1, unsigned int* vec2,
 							   unsigned int* mergedVec, int length);
 template void mergeSort_helper(float* vec1, float* vec2, float* mergedVec, int length);
 template void mergeSort_helper(double* vec1, double* vec2, double* mergedVec, int length);
+
+template <typename T>
+void mergeSort_helper_odd(T* vec1, T* vec2, T* mergedVec, int length1, int length2) {
+	int index1 = 0;
+	int index2 = 0;
+	int index = 0;
+	
+	while (index1 < length1 && index2 < length2) {
+		if (vec1[index1] < vec2[index2]) {
+			mergedVec[index] = vec1[index1];
+			index1++;
+			index++;
+		}
+		else {
+			mergedVec[index] = vec2[index2];
+			index2++;
+			index++;
+		}
+	
+	}
+	
+	if (index1 < length1) {
+		for (int i = index1; i < length1; i++) {
+			mergedVec[index] = vec1[i];
+			index++;
+		}
+	}
+	else {
+		for (int i = index2; i < length2; i++) {
+			mergedVec[index] = vec2[i];
+			index++;
+			
+		}
+	}
+}	
+
+template void mergeSort_helper_odd(int* vec1, int* vec2, int* mergedVec, int length1, int length2);
+template void mergeSort_helper_odd(unsigned int* vec1, unsigned int* vec2, 
+							   unsigned int* mergedVec, int length1, int length2);
+template void mergeSort_helper_odd(float* vec1, float* vec2, float* mergedVec, int length1, int length2);
+template void mergeSort_helper_odd(double* vec1, double* vec2, double* mergedVec, int length1, int length2);
 
 
 template <typename T>
@@ -366,8 +417,16 @@ template<typename T>
 results_t<T>* timeSortAndChooseMultiselect
 	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank) {
 	
-	if (RANK_NUM == 4) {
+	if (RANK_NUM == 2) {
+		return timeSortAndChooseMultiselect_TwoRank
+				(h_vec, numElements, kVals, kCount, rank);
+	}
+	else if (RANK_NUM == 4) {
 		return timeSortAndChooseMultiselect_FourRank
+				(h_vec, numElements, kVals, kCount, rank);
+	}
+	else if (RANK_NUM == 6) {
+		return timeSortAndChooseMultiselect_SixRank
 				(h_vec, numElements, kVals, kCount, rank);
 	}
 	else if (RANK_NUM == 8) {
@@ -386,6 +445,183 @@ template results_t<unsigned int>* timeSortAndChooseMultiselect
 template results_t<float>* timeSortAndChooseMultiselect
 	(float * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 template results_t<double>* timeSortAndChooseMultiselect
+	(double * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+	
+	
+
+template<typename T>
+results_t<T>* timeSortAndChooseMultiselect_TwoRank
+	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank) {
+    T * d_vec;
+    results_t<T> * result;
+    float time;
+    cudaEvent_t start, stop;
+    int startSignal = 1;
+    int stopSignal = 0;
+    
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 201, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 201, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    setupForTiming(start, stop, h_vec, &d_vec, &result, numElements, kCount);
+    
+    cudaThreadSynchronize();
+
+    cudaEventRecord(start, 0);
+    
+    // variables for host rank
+    T* d_vec_host;
+    
+    // all rank sort in GPU and copy it to CPU
+    sort_CALL<T>(d_vec, numElements);
+    cudaMemcpy(h_vec, d_vec, numElements * sizeof(T), cudaMemcpyDeviceToHost);
+    
+    cudaThreadSynchronize();
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+   	    // use start signal to make sure each rank is at the same stage
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 6, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 6, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+    // rank 1 send data to rank 0 and rank 0 performs mergesort
+    T* h_vec_host_recv;
+    T* h_vec_host;
+    if (rank == 0) {
+    	h_vec_host_recv = (T*)malloc(numElements * sizeof(T));
+    	h_vec_host = (T*)malloc(numElements * 2 * sizeof(T));
+    }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if (rank == 1) {
+    	MPI_Send_CALL(h_vec, numElements, 0, 31, MPI_COMM_WORLD);
+    }
+    
+    if (rank == 0) {
+    	MPI_Recv_CALL(h_vec_host_recv, numElements, 1, 31, MPI_COMM_WORLD, 
+					     MPI_STATUS_IGNORE);
+		mergeSort_helper(h_vec, h_vec_host_recv, h_vec_host, numElements);
+		
+		/*
+		// test part
+		for (int i = 0; i < 1000; i++) {
+			if (h_vec_host[i] > h_vec_host[i + 1]) {
+				printf("wrong %d   ", i);
+			}
+		}
+		*/
+    	
+    }
+    
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 203, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 203, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+    
+    cudaThreadSynchronize();
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    
+    // sorting part
+	T * d_output;
+	uint * d_kList;
+
+    if (rank == 0) {
+		cudaMalloc(&d_vec_host, sizeof(T) * numElements * RANK_NUM);
+		cudaMemcpy(d_vec_host, h_vec_host, numElements * sizeof(T) * RANK_NUM, 
+    			   cudaMemcpyHostToDevice);
+		
+		cudaThreadSynchronize();
+
+
+		T * d_output;
+		uint * d_kList;
+
+		cudaMalloc (&d_output, kCount * sizeof (T));
+		cudaMalloc (&d_kList, kCount * sizeof(uint));
+		cudaMemcpy (d_kList, kVals, kCount * sizeof (uint), cudaMemcpyHostToDevice);
+		
+		cudaThreadSynchronize();
+
+		int threads = MAX_THREADS_PER_BLOCK;
+		if (kCount < threads)
+		    threads = kCount;
+		int blocks = (int) ceil (kCount / (float) threads);
+		
+		cudaThreadSynchronize();
+
+		copyInChunk_CALL<T>(d_output, d_vec_host, d_kList, kCount, numElements * RANK_NUM, blocks, threads);
+		
+		cudaThreadSynchronize();
+		cudaMemcpy (result->vals, d_output, kCount * sizeof (T), cudaMemcpyDeviceToHost);
+		//••••••••••••••••••••••
+		//printf("first result: %u \n", result->vals);
+		
+		cudaThreadSynchronize();
+
+		cudaFree(d_output);
+		cudaFree(d_kList);
+		cudaFree(d_vec_host);
+    }
+    
+    
+    // use stop signal to make sure each rank is at the same stage
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&stopSignal, 1, i, 7, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&stopSignal, 1, 0, 7, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&time, start, stop);
+    
+    cudaThreadSynchronize();
+
+    wrapupForTiming(start, stop, time, result);
+    
+    cudaFree(d_vec);
+    if (rank == 0) {
+    	free(h_vec_host_recv);
+    	free(h_vec_host);
+    }
+
+    cudaThreadSynchronize();
+    
+    
+    return result;
+}
+
+template results_t<int>* timeSortAndChooseMultiselect_TwoRank
+	(int * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<unsigned int>* timeSortAndChooseMultiselect_TwoRank
+	(unsigned int * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<float>* timeSortAndChooseMultiselect_TwoRank
+	(float * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<double>* timeSortAndChooseMultiselect_TwoRank
 	(double * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 
 
@@ -615,6 +851,285 @@ template results_t<float>* timeSortAndChooseMultiselect_FourRank
 	(float * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
 template results_t<double>* timeSortAndChooseMultiselect_FourRank
 	(double * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+	
+	
+template<typename T>
+results_t<T>* timeSortAndChooseMultiselect_SixRank
+	(T * h_vec, uint numElements, uint * kVals, uint kCount, int rank) {
+    T * d_vec;
+    results_t<T> * result;
+    float time;
+    cudaEvent_t start, stop;
+    int startSignal = 1;
+    int stopSignal = 0;
+    
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 201, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 201, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    setupForTiming(start, stop, h_vec, &d_vec, &result, numElements, kCount);
+    
+    cudaThreadSynchronize();
+
+    cudaEventRecord(start, 0);
+    
+    // variables for host rank
+    T* d_vec_host;
+    
+    // all rank sort in GPU and copy it to CPU
+    sort_CALL<T>(d_vec, numElements);
+    cudaMemcpy(h_vec, d_vec, numElements * sizeof(T), cudaMemcpyDeviceToHost);
+    
+    cudaThreadSynchronize();
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+   	    // use start signal to make sure each rank is at the same stage
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 6, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 6, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+	// rank 6 send data to rank 2
+    // rank 5 send data to rank 1, rank 4 send data to rank 0
+    // and the four nodes perform merge_sort
+    T* h_vec_upper;
+    T* h_vec_upper_recv;    
+    if (rank < 3) {
+    	h_vec_upper = (T*)malloc(sizeof(T) * numElements * 2);
+    	h_vec_upper_recv = (T*)malloc(sizeof(T) * numElements);
+    }    
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if (rank >= 3) {
+    	if (rank == 3) {
+    		MPI_Send_CALL(h_vec, numElements, 0, 21, MPI_COMM_WORLD);
+    	}
+    	if (rank == 4) {
+    		MPI_Send_CALL(h_vec, numElements, 1, 22, MPI_COMM_WORLD);
+    	}
+    	if (rank == 5) {
+    		MPI_Send_CALL(h_vec, numElements, 2, 23, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank < 3) {
+    	if (rank == 0) {
+    		MPI_Recv_CALL(h_vec_upper_recv, numElements, 4, 21, MPI_COMM_WORLD, 
+					     MPI_STATUS_IGNORE);
+			mergeSort_helper(h_vec, h_vec_upper_recv, h_vec_upper, numElements);
+    	}
+    	if (rank == 1) {
+    		MPI_Recv_CALL(h_vec_upper_recv, numElements, 5, 22, MPI_COMM_WORLD, 
+					     MPI_STATUS_IGNORE);
+			mergeSort_helper(h_vec, h_vec_upper_recv, h_vec_upper, numElements);
+    	}
+    	if (rank == 2) {
+    		MPI_Recv_CALL(h_vec_upper_recv, numElements, 6, 23, MPI_COMM_WORLD, 
+					     MPI_STATUS_IGNORE);
+			mergeSort_helper(h_vec, h_vec_upper_recv, h_vec_upper, numElements);
+    	}
+    
+    }
+    
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 202, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 202, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+      
+    // rank 1 send data to rank 2
+    // and the two nodes perform merge_sort
+    T* h_vec_middle;
+    T* h_vec_middle_recv;
+    if (rank == 2) {
+    	// free(h_vec_upper_recv);
+    	h_vec_middle = (T*)malloc(sizeof(T) * numElements * 4);
+    	h_vec_middle_recv = (T*)malloc(sizeof(T) * numElements * 2);
+    }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+
+	if (rank == 1) {
+		MPI_Send_CALL(h_vec_upper, numElements * 2, 2, 24, MPI_COMM_WORLD);
+	}
+
+	if (rank == 2) {
+		MPI_Recv_CALL(h_vec_middle_recv, numElements * 2, 1, 24, MPI_COMM_WORLD, 
+					 MPI_STATUS_IGNORE);
+		mergeSort_helper(h_vec_upper, h_vec_middle_recv, h_vec_middle, numElements * 2);
+	}
+
+    
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 203, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 203, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    
+    // rank 2 send data to rank 0 and rank 0 performs mergesort
+    T* h_vec_host_recv;
+    T* h_vec_host;
+    if (rank == 0) {
+    	// free(h_vec_middle_recv);
+    	h_vec_host_recv = (T*)malloc(numElements * 4 * sizeof(T));
+    	h_vec_host = (T*)malloc(numElements * 6 * sizeof(T));
+    }
+    
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    if (rank == 2) {
+    	MPI_Send_CALL(h_vec_middle, numElements * 4, 0, 25, MPI_COMM_WORLD);
+    }
+    
+    // TODO: work to right here
+    
+    if (rank == 0) {
+    	MPI_Recv_CALL(h_vec_host_recv, numElements * 4, 2, 25, MPI_COMM_WORLD, 
+					     MPI_STATUS_IGNORE);
+		mergeSort_helper_odd(h_vec_middle, h_vec_host_recv, h_vec_host, 
+				numElements * 2, numElements * 4);
+		
+		/*
+		// test part
+		for (int i = 0; i < 1000; i++) {
+			if (h_vec_host[i] > h_vec_host[i + 1]) {
+				printf("wrong %d   ", i);
+			}
+		}
+		*/
+    	
+    }
+    
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&startSignal, 1, i, 204, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&startSignal, 1, 0, 204, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+    
+    
+    cudaThreadSynchronize();
+    MPI_Barrier(MPI_COMM_WORLD);
+    
+    
+    // sorting part
+	T * d_output;
+	uint * d_kList;
+
+    if (rank == 0) {
+		cudaMalloc(&d_vec_host, sizeof(T) * numElements * RANK_NUM);
+		cudaMemcpy(d_vec_host, h_vec_host, numElements * sizeof(T) * RANK_NUM, 
+    			   cudaMemcpyHostToDevice);
+		
+		cudaThreadSynchronize();
+
+
+		T * d_output;
+		uint * d_kList;
+
+		cudaMalloc (&d_output, kCount * sizeof (T));
+		cudaMalloc (&d_kList, kCount * sizeof(uint));
+		cudaMemcpy (d_kList, kVals, kCount * sizeof (uint), cudaMemcpyHostToDevice);
+		
+		cudaThreadSynchronize();
+
+		int threads = MAX_THREADS_PER_BLOCK;
+		if (kCount < threads)
+		    threads = kCount;
+		int blocks = (int) ceil (kCount / (float) threads);
+		
+		cudaThreadSynchronize();
+
+		copyInChunk_CALL<T>(d_output, d_vec_host, d_kList, kCount, numElements * RANK_NUM, blocks, threads);
+		
+		cudaThreadSynchronize();
+		cudaMemcpy (result->vals, d_output, kCount * sizeof (T), cudaMemcpyDeviceToHost);
+		//••••••••••••••••••••••
+		//printf("first result: %u \n", result->vals);
+		
+		cudaThreadSynchronize();
+
+		cudaFree(d_output);
+		cudaFree(d_kList);
+		cudaFree(d_vec_host);
+    }
+    
+    
+    // use stop signal to make sure each rank is at the same stage
+    if (rank == 0) {
+    	for (int i = 1; i < RANK_NUM; i++) {
+    		MPI_Send_CALL(&stopSignal, 1, i, 7, MPI_COMM_WORLD);
+    	}
+    }
+    
+    if (rank != 0) {
+    	MPI_Recv_CALL(&stopSignal, 1, 0, 7, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    cudaEventRecord(stop, 0);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(&time, start, stop);
+    
+    cudaThreadSynchronize();
+
+    wrapupForTiming(start, stop, time, result);
+    
+    cudaFree(d_vec);
+    if (rank < 3) {
+    	free(h_vec_upper);
+    	free(h_vec_upper_recv);  	
+    }
+    if (rank == 2) {
+    	free(h_vec_middle);
+    	free(h_vec_middle_recv);
+    }
+    if (rank == 0) {
+    	free(h_vec_host_recv);
+    	free(h_vec_host);
+    }
+    cudaThreadSynchronize();
+    
+    
+    return result;
+}
+
+template results_t<int>* timeSortAndChooseMultiselect_SixRank
+	(int * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<unsigned int>* timeSortAndChooseMultiselect_SixRank
+	(unsigned int * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<float>* timeSortAndChooseMultiselect_SixRank
+	(float * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+template results_t<double>* timeSortAndChooseMultiselect_SixRank
+	(double * h_vec, uint numElements, uint * kVals, uint kCount, int rank);
+
 
 
 template<typename T>
