@@ -1,0 +1,291 @@
+File Name: double UNIFORM DOUBLES k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:12:16 2024 
+NOW ADDING ANOTHER K
+
+Files will be written to double UNIFORM DOUBLES k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:12:16 2024
+The distribution is: UNIFORM DOUBLES
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 2097152 and numK: 101
+TESTING: 3
+Iteration 0: current length_host: 1466
+Iteration 1: current length_host: 40
+Iteration 2: current length_host: 40
+All order statistics found, done!
+TESTING: 1
+TESTING: 0
+Running test 2 of 4 for size: 2097152 and numK: 101
+TESTING: 3
+Iteration 0: current length_host: 1603
+Iteration 1: current length_host: 42
+Iteration 2: current length_host: 42
+All order statistics found, done!
+TESTING: 1
+TESTING: 0
+Running test 3 of 4 for size: 2097152 and numK: 101
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 1284
+Iteration 1: current length_host: 27
+Iteration 2: current length_host: 27
+All order statistics found, done!
+TESTING: 1
+Running test 4 of 4 for size: 2097152 and numK: 101
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 1486
+Iteration 1: current length_host: 29
+Iteration 2: current length_host: 29
+All order statistics found, done!
+TESTING: 0
+
+
+Sort and Choose Multiselect averaged: 4334.261719 ms
+DistributedBucketMultiSelect averaged: 95.247513 ms
+DistributedSMOS      averaged: 135.915756 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 1 times
+DistributedSMOS won 3 times
+NOW ADDING ANOTHER K
+
+Files will be written to double UNIFORM DOUBLES k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:12:16 2024
+The distribution is: UNIFORM DOUBLES
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 2097152 and numK: 201
+TESTING: 3
+Iteration 0: current length_host: 6101
+Iteration 1: current length_host: 241
+Iteration 2: current length_host: 8
+Iteration 3: current length_host: 8
+All order statistics found, done!
+TESTING: 1
+TESTING: 0
+Running test 2 of 4 for size: 2097152 and numK: 201
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 5911
+Iteration 1: current length_host: 282
+Iteration 2: current length_host: 2
+Iteration 3: current length_host: 2
+All order statistics found, done!
+TESTING: 0
+Running test 3 of 4 for size: 2097152 and numK: 201
+TESTING: 3
+Iteration 0: current length_host: 6377
+Iteration 1: current length_host: 394
+Iteration 2: current length_host: 202
+Iteration 3: current length_host: 202
+Iteration 4: current length_host: 202
+Iteration 5: current length_host: 202
+Still have Repeat number.
+TESTING: 1
+TESTING: 0
+Running test 4 of 4 for size: 2097152 and numK: 201
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 6031
+Iteration 1: current length_host: 252
+Iteration 2: current length_host: 8
+Iteration 3: current length_host: 8
+All order statistics found, done!
+
+
+Sort and Choose Multiselect averaged: 4330.998535 ms
+DistributedBucketMultiSelect averaged: 156.027985 ms
+DistributedSMOS      averaged: 109.604698 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 0 times
+DistributedSMOS won 4 times
+NOW ADDING ANOTHER K
+
+Files will be written to double UNIFORM DOUBLES k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:12:16 2024
+The distribution is: UNIFORM DOUBLES
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 2097152 and numK: 301
+TESTING: 3
+Iteration 0: current length_host: 13652
+Iteration 1: current length_host: 743
+Iteration 2: current length_host: 36
+Iteration 3: current length_host: 36
+All order statistics found, done!
+TESTING: 1
+TESTING: 0
+Running test 2 of 4 for size: 2097152 and numK: 301
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 13117
+Iteration 1: current length_host: 766
+Iteration 2: current length_host: 6
+Iteration 3: current length_host: 6
+All order statistics found, done!
+Running test 3 of 4 for size: 2097152 and numK: 301
+TESTING: 3
+Iteration 0: current length_host: 12679
+Iteration 1: current length_host: 725
+Iteration 2: current length_host: 34
+Iteration 3: current length_host: 34
+All order statistics found, done!
+TESTING: 0
+TESTING: 1
+Running test 4 of 4 for size: 2097152 and numK: 301
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 13389
+Iteration 1: current length_host: 768
+Iteration 2: current length_host: 32
+Iteration 3: current length_host: 32
+All order statistics found, done!
+
+
+Sort and Choose Multiselect averaged: 4331.194336 ms
+DistributedBucketMultiSelect averaged: 212.587845 ms
+DistributedSMOS      averaged: 105.394043 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 0 times
+DistributedSMOS won 4 times
+NOW ADDING ANOTHER K
+
+Files will be written to double UNIFORM DOUBLES k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:12:16 2024
+The distribution is: UNIFORM DOUBLES
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 4194304 and numK: 101
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 2735
+Iteration 1: current length_host: 68
+Iteration 2: current length_host: 2
+Iteration 3: current length_host: 2
+All order statistics found, done!
+Running test 2 of 4 for size: 4194304 and numK: 101
+TESTING: 3
+Iteration 0: current length_host: 3034
+Iteration 1: current length_host: 65
+Iteration 2: current length_host: 65
+All order statistics found, done!
+TESTING: 1
+TESTING: 0
+Running test 3 of 4 for size: 4194304 and numK: 101
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 2813
+Iteration 1: current length_host: 75
+Iteration 2: current length_host: 75
+All order statistics found, done!
+Running test 4 of 4 for size: 4194304 and numK: 101
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 2965
+Iteration 1: current length_host: 45
+Iteration 2: current length_host: 45
+All order statistics found, done!
+TESTING: 1
+
+
+Sort and Choose Multiselect averaged: 8658.480469 ms
+DistributedBucketMultiSelect averaged: 149.517883 ms
+DistributedSMOS      averaged: 85.710602 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 0 times
+DistributedSMOS won 4 times
+NOW ADDING ANOTHER K
+
+Files will be written to double UNIFORM DOUBLES k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:12:16 2024
+The distribution is: UNIFORM DOUBLES
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 4194304 and numK: 201
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 10817
+Iteration 1: current length_host: 435
+Iteration 2: current length_host: 8
+Iteration 3: current length_host: 8
+All order statistics found, done!
+Running test 2 of 4 for size: 4194304 and numK: 201
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 11466
+Iteration 1: current length_host: 420
+Iteration 2: current length_host: 4
+Iteration 3: current length_host: 4
+All order statistics found, done!
+Running test 3 of 4 for size: 4194304 and numK: 201
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 11821
+Iteration 1: current length_host: 479
+Iteration 2: current length_host: 10
+Iteration 3: current length_host: 10
+All order statistics found, done!
+TESTING: 0
+Running test 4 of 4 for size: 4194304 and numK: 201
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 11046
+Iteration 1: current length_host: 412
+Iteration 2: current length_host: 2
+Iteration 3: current length_host: 2
+All order statistics found, done!
+TESTING: 1
+
+
+Sort and Choose Multiselect averaged: 8658.298828 ms
+DistributedBucketMultiSelect averaged: 268.550354 ms
+DistributedSMOS      averaged: 102.801010 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 0 times
+DistributedSMOS won 4 times
+NOW ADDING ANOTHER K
+
+Files will be written to double UNIFORM DOUBLES k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:12:16 2024
+The distribution is: UNIFORM DOUBLES
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 4194304 and numK: 301
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 26283
+Iteration 1: current length_host: 1264
+Iteration 2: current length_host: 54
+Iteration 3: current length_host: 54
+All order statistics found, done!
+Running test 2 of 4 for size: 4194304 and numK: 301
+TESTING: 3
+Iteration 0: current length_host: 25294
+Iteration 1: current length_host: 1221
+Iteration 2: current length_host: 44
+Iteration 3: current length_host: 2
+Iteration 4: current length_host: 2
+All order statistics found, done!
+TESTING: 0
+TESTING: 1
+Running test 3 of 4 for size: 4194304 and numK: 301
+TESTING: 3
+Iteration 0: current length_host: 26640
+Iteration 1: current length_host: 1302
+Iteration 2: current length_host: 77
+Iteration 3: current length_host: 77
+All order statistics found, done!
+TESTING: 0
+TESTING: 1
+Running test 4 of 4 for size: 4194304 and numK: 301
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 25884
+Iteration 1: current length_host: 1235
+Iteration 2: current length_host: 65
+Iteration 3: current length_host: 65
+All order statistics found, done!
+TESTING: 0
+
+
+Sort and Choose Multiselect averaged: 8658.066406 ms
+DistributedBucketMultiSelect averaged: 396.180542 ms
+DistributedSMOS      averaged: 111.070099 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 0 times
+DistributedSMOS won 4 times

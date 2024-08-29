@@ -1,0 +1,335 @@
+File Name: float UNIFORM FLOATS k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:08:34 2024 
+NOW ADDING ANOTHER K
+
+Files will be written to float UNIFORM FLOATS k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:08:34 2024
+The distribution is: UNIFORM FLOATS
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 2097152 and numK: 101
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 1450
+Iteration 1: current length_host: 90
+Iteration 2: current length_host: 90
+Iteration 3: current length_host: 90
+Iteration 4: current length_host: 90
+Still have Repeat number.
+Running test 2 of 4 for size: 2097152 and numK: 101
+TESTING: 3
+Iteration 0: current length_host: 1612
+Iteration 1: current length_host: 78
+Iteration 2: current length_host: 78
+Iteration 3: current length_host: 78
+Iteration 4: current length_host: 78
+Still have Repeat number.
+TESTING: 1
+TESTING: 0
+Running test 3 of 4 for size: 2097152 and numK: 101
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 1451
+Iteration 1: current length_host: 78
+Iteration 2: current length_host: 78
+Iteration 3: current length_host: 78
+Iteration 4: current length_host: 78
+Still have Repeat number.
+TESTING: 0
+Running test 4 of 4 for size: 2097152 and numK: 101
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 1607
+Iteration 1: current length_host: 74
+Iteration 2: current length_host: 74
+Iteration 3: current length_host: 74
+Iteration 4: current length_host: 74
+Still have Repeat number.
+TESTING: 0
+
+
+Sort and Choose Multiselect averaged: 2206.325928 ms
+DistributedBucketMultiSelect averaged: 211.501648 ms
+DistributedSMOS      averaged: 118.186890 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 3 times
+DistributedSMOS won 1 times
+NOW ADDING ANOTHER K
+
+Files will be written to float UNIFORM FLOATS k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:08:34 2024
+The distribution is: UNIFORM FLOATS
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 2097152 and numK: 201
+TESTING: 3
+Iteration 0: current length_host: 5753
+Iteration 1: current length_host: 256
+Iteration 2: current length_host: 173
+Iteration 3: current length_host: 173
+Iteration 4: current length_host: 173
+Iteration 5: current length_host: 173
+Still have Repeat number.
+TESTING: 1
+TESTING: 0
+Running test 2 of 4 for size: 2097152 and numK: 201
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 5670
+Iteration 1: current length_host: 276
+Iteration 2: current length_host: 192
+Iteration 3: current length_host: 192
+Iteration 4: current length_host: 192
+Iteration 5: current length_host: 192
+Still have Repeat number.
+TESTING: 1
+Running test 3 of 4 for size: 2097152 and numK: 201
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 5935
+Iteration 1: current length_host: 250
+Iteration 2: current length_host: 174
+Iteration 3: current length_host: 174
+Iteration 4: current length_host: 174
+Iteration 5: current length_host: 174
+Still have Repeat number.
+Running test 4 of 4 for size: 2097152 and numK: 201
+TESTING: 3
+Iteration 0: current length_host: 6075
+Iteration 1: current length_host: 277
+Iteration 2: current length_host: 196
+Iteration 3: current length_host: 196
+Iteration 4: current length_host: 196
+Iteration 5: current length_host: 196
+Still have Repeat number.
+TESTING: 0
+TESTING: 1
+
+
+Sort and Choose Multiselect averaged: 2168.896729 ms
+DistributedBucketMultiSelect averaged: 89.596741 ms
+DistributedSMOS      averaged: 131.246674 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 4 times
+DistributedSMOS won 0 times
+NOW ADDING ANOTHER K
+
+Files will be written to float UNIFORM FLOATS k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:08:34 2024
+The distribution is: UNIFORM FLOATS
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 2097152 and numK: 301
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 13379
+Iteration 1: current length_host: 721
+Iteration 2: current length_host: 254
+Iteration 3: current length_host: 254
+Iteration 4: current length_host: 254
+Iteration 5: current length_host: 254
+Still have Repeat number.
+Running test 2 of 4 for size: 2097152 and numK: 301
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 13439
+Iteration 1: current length_host: 779
+Iteration 2: current length_host: 288
+Iteration 3: current length_host: 288
+Iteration 4: current length_host: 288
+Iteration 5: current length_host: 288
+Still have Repeat number.
+TESTING: 1
+Running test 3 of 4 for size: 2097152 and numK: 301
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 13068
+Iteration 1: current length_host: 708
+Iteration 2: current length_host: 245
+Iteration 3: current length_host: 245
+Iteration 4: current length_host: 245
+Iteration 5: current length_host: 245
+Still have Repeat number.
+Running test 4 of 4 for size: 2097152 and numK: 301
+TESTING: 3
+Iteration 0: current length_host: 12940
+Iteration 1: current length_host: 691
+Iteration 2: current length_host: 287
+Iteration 3: current length_host: 287
+Iteration 4: current length_host: 287
+Iteration 5: current length_host: 287
+Still have Repeat number.
+TESTING: 1
+TESTING: 0
+
+
+Sort and Choose Multiselect averaged: 2168.524658 ms
+DistributedBucketMultiSelect averaged: 120.119461 ms
+DistributedSMOS      averaged: 134.583679 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 4 times
+DistributedSMOS won 0 times
+NOW ADDING ANOTHER K
+
+Files will be written to float UNIFORM FLOATS k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:08:34 2024
+The distribution is: UNIFORM FLOATS
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 4194304 and numK: 101
+TESTING: 3
+Iteration 0: current length_host: 2842
+Iteration 1: current length_host: 163
+Iteration 2: current length_host: 163
+Iteration 3: current length_host: 163
+Iteration 4: current length_host: 163
+Still have Repeat number.
+TESTING: 0
+TESTING: 1
+Running test 2 of 4 for size: 4194304 and numK: 101
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 2635
+Iteration 1: current length_host: 147
+Iteration 2: current length_host: 147
+Iteration 3: current length_host: 147
+Iteration 4: current length_host: 147
+Still have Repeat number.
+Running test 3 of 4 for size: 4194304 and numK: 101
+TESTING: 3
+Iteration 0: current length_host: 2631
+Iteration 1: current length_host: 140
+Iteration 2: current length_host: 140
+Iteration 3: current length_host: 140
+Iteration 4: current length_host: 140
+Still have Repeat number.
+TESTING: 1
+TESTING: 0
+Running test 4 of 4 for size: 4194304 and numK: 101
+TESTING: 3
+Iteration 0: current length_host: 2874
+Iteration 1: current length_host: 184
+Iteration 2: current length_host: 184
+Iteration 3: current length_host: 184
+Iteration 4: current length_host: 184
+Still have Repeat number.
+TESTING: 0
+TESTING: 1
+
+
+Sort and Choose Multiselect averaged: 4332.836914 ms
+DistributedBucketMultiSelect averaged: 89.505936 ms
+DistributedSMOS      averaged: 112.834625 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 4 times
+DistributedSMOS won 0 times
+NOW ADDING ANOTHER K
+
+Files will be written to float UNIFORM FLOATS k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:08:34 2024
+The distribution is: UNIFORM FLOATS
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 4194304 and numK: 201
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 11837
+Iteration 1: current length_host: 467
+Iteration 2: current length_host: 311
+Iteration 3: current length_host: 311
+Iteration 4: current length_host: 311
+Iteration 5: current length_host: 311
+Still have Repeat number.
+TESTING: 1
+Running test 2 of 4 for size: 4194304 and numK: 201
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 10908
+Iteration 1: current length_host: 456
+Iteration 2: current length_host: 326
+Iteration 3: current length_host: 326
+Iteration 4: current length_host: 326
+Iteration 5: current length_host: 326
+Still have Repeat number.
+Running test 3 of 4 for size: 4194304 and numK: 201
+TESTING: 3
+Iteration 0: current length_host: 11777
+Iteration 1: current length_host: 437
+Iteration 2: current length_host: 319
+Iteration 3: current length_host: 319
+Iteration 4: current length_host: 319
+Iteration 5: current length_host: 319
+Still have Repeat number.
+TESTING: 1
+TESTING: 0
+Running test 4 of 4 for size: 4194304 and numK: 201
+TESTING: 0
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 11434
+Iteration 1: current length_host: 456
+Iteration 2: current length_host: 312
+Iteration 3: current length_host: 312
+Iteration 4: current length_host: 312
+Iteration 5: current length_host: 312
+Still have Repeat number.
+
+
+Sort and Choose Multiselect averaged: 4332.876953 ms
+DistributedBucketMultiSelect averaged: 148.692276 ms
+DistributedSMOS      averaged: 133.176575 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 0 times
+DistributedSMOS won 4 times
+NOW ADDING ANOTHER K
+
+Files will be written to float UNIFORM FLOATS k-dist:Uniform Ks 2^21 to 2^22 (101:100:301) 4-tests on zermelo.cs.grinnell. at Thu Aug 29 03:08:34 2024
+The distribution is: UNIFORM FLOATS
+The k distribution is: Uniform Ks
+Running test 1 of 4 for size: 4194304 and numK: 301
+TESTING: 1
+TESTING: 3
+Iteration 0: current length_host: 25815
+Iteration 1: current length_host: 1277
+Iteration 2: current length_host: 523
+Iteration 3: current length_host: 523
+Iteration 4: current length_host: 523
+Iteration 5: current length_host: 523
+Still have Repeat number.
+TESTING: 0
+Running test 2 of 4 for size: 4194304 and numK: 301
+TESTING: 1
+TESTING: 0
+TESTING: 3
+Iteration 0: current length_host: 25691
+Iteration 1: current length_host: 1250
+Iteration 2: current length_host: 522
+Iteration 3: current length_host: 522
+Iteration 4: current length_host: 522
+Iteration 5: current length_host: 522
+Still have Repeat number.
+Running test 3 of 4 for size: 4194304 and numK: 301
+TESTING: 3
+Iteration 0: current length_host: 26390
+Iteration 1: current length_host: 1292
+Iteration 2: current length_host: 515
+Iteration 3: current length_host: 515
+Iteration 4: current length_host: 515
+Iteration 5: current length_host: 515
+Still have Repeat number.
+TESTING: 1
+TESTING: 0
+Running test 4 of 4 for size: 4194304 and numK: 301
+TESTING: 3
+Iteration 0: current length_host: 26878
+Iteration 1: current length_host: 1283
+Iteration 2: current length_host: 456
+Iteration 3: current length_host: 456
+Iteration 4: current length_host: 456
+Iteration 5: current length_host: 456
+Still have Repeat number.
+TESTING: 0
+TESTING: 1
+
+
+Sort and Choose Multiselect averaged: 4332.968750 ms
+DistributedBucketMultiSelect averaged: 209.147522 ms
+DistributedSMOS      averaged: 135.553329 ms
+Sort and Choose Multiselect won 0 times
+DistributedBucketMultiSelect won 0 times
+DistributedSMOS won 4 times
