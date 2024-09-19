@@ -61,6 +61,9 @@ ssh without entering password. You can try typing the command
 >> ssh mccarthy
 to see if you can connect to them successfully or not.
 
+Or instead, use your own set of computers. The key here is you can ssh to other
+computers without entering the password.(SSH keys are set up)
+
 
 Then cd to folder DistributedSMOS
 
@@ -96,6 +99,9 @@ computers using ssh without entering password. Try typing the command
 >> ssh householder
 >> ssh mccarthy
 to see if you can connect to them successfully or not.
+
+Or instead, use your own set of computers. The key here is you can ssh to other
+computers without entering the password.(SSH keys are set up)
 
 
 Then cd to folder DistributedSMOS-1
